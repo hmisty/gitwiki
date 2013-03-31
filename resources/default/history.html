@@ -1,0 +1,41 @@
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>__title__ &gt; __page__</title>
+		<link rel="stylesheet" type="text/css" href="style.css" />
+	</head>
+	<body>
+		<div id="navigation">
+			<p><a href="__home_url__">Home</a> 
+			| <a href="__global_history_url__">History</a>
+			<!-- if __user_logged_in__ -->| Logged in as <!-- __user__ -->
+			</p>
+		</div>
+
+		<div id="header">
+			<h1 id="title"><!-- __history_page__ --></h1>
+		</div>
+
+		<div id="history">
+			<p>
+			<table>
+				<tr><th>Date</th><th>Author</th><th>Page</th><th>Message</th></tr>
+				<!-- foreach wiki history item -->
+				<tr>
+					<td><!-- __item_date__ --></td>
+					<td class='author'><!-- __item_author__ --></td>
+					<td class='page'><a href="__item_page__"><!-- __item_page__ --></a></td>
+					<td><!-- __item_message__ --></td>
+					<td><a href="__view_url_item_page_commit__">View</a></td>"
+					<td></td>
+				</tr>
+			</table>
+			</p>
+		</div>
+		<div id="plug">
+			<p>
+			Powered by <a href="http://github.com/hmisty/gitwiki">GitWiki</a>
+			</p>
+		</div>
+	</body>
+</html>
