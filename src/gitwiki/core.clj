@@ -3,7 +3,7 @@
   (:import (java.io FileNotFoundException))
   (:use [clojure.pprint]
         [compojure.core :only (GET POST defroutes)]
-        [ring.middleware.basic-authentication]
+        [ring.middleware.basic-authentication])
   (:require [clojure.string :as string]
             [ring.util.response :as resp]
             [net.cgrand.enlive-html :as en]
