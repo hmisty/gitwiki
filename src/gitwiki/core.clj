@@ -57,7 +57,7 @@
     (string/replace (textile/parse content) #"\[([A-Z]\w+)\]" (page_link "$1"))))
 
 ;; the pages
-(en/deftemplate view
+(en/deftemplate view'
   (en/xml-resource (str THEME "/view.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > " page])
@@ -68,8 +68,14 @@
   [:a.edit_url] (en/set-attr :href (edit_url page))
   [:a.history_url] (en/set-attr :href (history_url page))
   [:div#content] (en/html-content (try (parse (slurp (page_file page)))
-                               (catch FileNotFoundException e "")))
+                                    (catch FileNotFoundException e "")))
   [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX")) ;TODO
+
+(defn view
+  [page & {user :user}]
+  (if (.exists (io/file (page_file page)))
+    (view' page :user user)
+    (resp/redirect (edit_url page))))
 
 (en/deftemplate edit
   (en/xml-resource (str THEME "/edit.html"))
