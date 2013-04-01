@@ -29,22 +29,22 @@
   [name pass]
   (and (= name "test") (= pass "test") "test"))
 
-(defmacro page_url
+(defmacro page-url
   "Returns the URL to view the page."
   [page]
   `(str "/wiki/" ~page))
 
-(defmacro edit_url
+(defmacro edit-url
   "Returns the URL to edit the page."
   [page]
   `(str "/edit/" ~page))
 
-(defmacro history_url
+(defmacro history-url
   "Returns the URL to the history of the page."
   ([] `(str "/history"))
   ([page] `(str "/history/" ~page)))
 
-(defmacro page_file
+(defmacro page-file
   "Returns the file path for the wiki page."
   [page]
   `(str DATA_DIR "/" ~page))
@@ -52,49 +52,54 @@
 (defn parse
   "Returns the parsed html from the content in textile."
   [content]
-  (let [page_link (fn [page]
-                    (string/join "" (en/emit* (en/html [:a {:href (page_url page)} page]))))]
-    (string/replace (textile/parse content) #"\[([A-Z]\w+)\]" (page_link "$1"))))
+  (let [page-link (fn [page]
+                    (string/join "" (en/emit* (en/html [:a {:href (page-url page)} page]))))]
+    (string/replace (textile/parse content) #"\[([A-Z]\w+)\]" (page-link "$1"))))
+
+(defn file-modified-time
+  "Returns the formatted date time of the last modified time of the specified file."
+  [file]
+  (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date. (.lastModified (io/file file)))))
 
 ;; the pages
 (en/deftemplate view'
   (en/xml-resource (str THEME "/view.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > " page])
-  [:a.home_url] (en/set-attr :href (page_url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history_url))
+  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
+  [:a.global_history-url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content [page])
-  [:a.edit_url] (en/set-attr :href (edit_url page))
-  [:a.history_url] (en/set-attr :href (history_url page))
-  [:div#content] (en/html-content (try (parse (slurp (page_file page)))
+  [:a.edit-url] (en/set-attr :href (edit-url page))
+  [:a.history-url] (en/set-attr :href (history-url page))
+  [:div#content] (en/html-content (try (parse (slurp (page-file page)))
                                     (catch FileNotFoundException e "")))
-  [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX")) ;TODO
+  [:span#last_modified] (en/content (file-modified-time (page-file page)))) ;TODO
 
 (defn view
   [page & {user :user}]
-  (if (.exists (io/file (page_file page)))
+  (if (.exists (io/file (page-file page)))
     (view' page :user user)
-    (resp/redirect (edit_url page))))
+    (resp/redirect (edit-url page))))
 
 (en/deftemplate edit
   (en/xml-resource (str THEME "/edit.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Editing " page])
-  [:a.home_url] (en/set-attr :href (page_url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history_url))
+  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
+  [:a.global_history-url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content ["Editing " page])
-  [:form] (en/set-attr :action (page_url page))
-  [:textarea#content] (en/content (try (slurp (page_file page)) 
+  [:form] (en/set-attr :action (page-url page))
+  [:textarea#content] (en/content (try (slurp (page-file page)) 
                                     (catch FileNotFoundException e ""))))
 
 (en/deftemplate history
   (en/xml-resource (str THEME "/history.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > History of " (nil?? page "all")])
-  [:a.home_url] (en/set-attr :href (page_url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history_url))
+  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
+  [:a.global_history-url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content ["History of " (nil?? page "all")]))
 
@@ -103,9 +108,9 @@
   [req page]
   (let [{user :basic-authentication
          {input "data"} :form-params} req]
-    (with-open [w (io/writer (page_file page))] ;TODO FileNotFoundException
+    (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException
       (.write w input)))
-  (resp/redirect (page_url page)))
+  (resp/redirect (page-url page)))
 
 ;; the handlers
 (defroutes handler
