@@ -59,6 +59,8 @@
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit_url page))
   [:a.history_url] (en/set-attr :href (history_url page))
+  [:div#content] (en/content (try (slurp (page_file page)) 
+                               (catch FileNotFoundException e "")))
   [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX")) ;TODO
 
 (en/deftemplate edit
