@@ -1,14 +1,18 @@
+<!DOCTYPE html [
+	<!ENTITY rarr "&#8594;">
+	<!ENTITY raquo "&#187;">
+]>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>__title__ &gt; Editing __page__</title>
+		<title>__title__ &raquo; Editing __page__</title>
 		<link rel="stylesheet" type="text/css" href="/style.css" />
 	</head>
 	<body>
 		<div id="navigation">
-			<p><a href="__home_url__">Home</a> 
-			| <a href="__global_history_url__">History</a>
-			<!-- if __user_logged_in__ -->| Logged in as <!-- __user__ -->
+			<p><a class="home_url" href="__home_url__">Home</a> 
+			| <a class="global_history_url" href="__global_history_url__">History</a>
+			<span class="username"><!-- if __user_logged_in__ | Logged in as __user__ --></span>
 			</p>
 		</div>
 
@@ -49,7 +53,7 @@
 				<li><code>%{color:red}Red% text</code> &rarr; <span style='color:red'>Red</span> text</li>
 			</ul>
 			For more markup styles, see the 
-			<a href="http://hobix.com/textile/">Textile reference</a>.
+			<a href="http://redcloth.org/hobix.com/textile/">Textile reference</a>.
 			</p>
 		</div>
 

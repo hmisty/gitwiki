@@ -45,7 +45,17 @@
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit_url page))
-  [:a.history_url] (en/set-attr :href (history_url page)))
+  [:a.history_url] (en/set-attr :href (history_url page))
+  [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX"))
+
+(en/deftemplate edit
+  (en/xml-resource (str THEME "/edit.html"))
+  [page & {user :user}]
+  [:title] (en/content [PROJECT " > Editing " page])
+  [:a.home_url] (en/set-attr :href (page_url DEFAULT_PAGE))
+  [:a.global_history_url] (en/set-attr :href (history_url))
+  [:span.username] (en/content ["| Logged in as " user])
+  [:h1#title] (en/content ["Editing " page]))
 
 (en/deftemplate history
   (en/xml-resource (str THEME "/history.html"))
@@ -62,6 +72,7 @@
   (GET "/" req (view DEFAULT_PAGE :user (:basic-authentication req)))
   (GET "/wiki/:page" [page :as req] (view page :user (:basic-authentication req)))
   ;; edit
+  (GET "/edit/:page" [page :as req] (edit page :user (:basic-authentication req)))
   ;; history
   (GET "/history" req (history nil :user (:basic-authentication req)))
   (GET "/history/:page" [page :as req] (history page :user (:basic-authentication req)))
