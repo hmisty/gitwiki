@@ -27,9 +27,13 @@
   [page]
   `(str "/wiki/" ~page))
 
+(defmacro edit_url
+  [page]
+  `(str "/edit/" ~page))
+
 (defmacro history_url
-  ([] (str "/history"))
-  ([page] (str "/history/" page)))
+  ([] `(str "/history"))
+  ([page] `(str "/history/" ~page)))
 
 ;; the pages
 (en/deftemplate view
@@ -39,7 +43,9 @@
   [:a.home_url] (en/set-attr :href (page_url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history_url))
   [:span.username] (en/content ["| Logged in as " user])
-  [:h1#title] (en/content [page]))
+  [:h1#title] (en/content [page])
+  [:a.edit_url] (en/set-attr :href (edit_url page))
+  [:a.history_url] (en/set-attr :href (history_url page)))
 
 (en/deftemplate history
   (en/xml-resource (str THEME "/history.html"))
