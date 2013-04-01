@@ -7,7 +7,7 @@
                  [ring "1.0.1"]
                  [ring-basic-authentication "1.0.2"]
                  [compojure "1.0.1"]
-                 [enlive "1.0.0"]
+                 [enlive "1.1.1"]
                  [org.eclipse.mylyn.wikitext/wikitext.textile "0.9.4.I20090220-1600-e3x"]]
   :main gitwiki.server 
   :plugins [[lein-ring "0.7.5"]]

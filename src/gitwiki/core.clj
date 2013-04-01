@@ -25,29 +25,36 @@
   (if (nil? x) y x))
 
 (defn authenticated? 
-  "Returns the logged in username if authenticated"
+  "Returns the logged in username if authenticated."
   [name pass]
   (and (= name "test") (= pass "test") "test"))
 
 (defmacro page_url
-  "Returns the URL to view the page"
+  "Returns the URL to view the page."
   [page]
   `(str "/wiki/" ~page))
 
 (defmacro edit_url
-  "Returns the URL to edit the page"
+  "Returns the URL to edit the page."
   [page]
   `(str "/edit/" ~page))
 
 (defmacro history_url
-  "Returns the URL to the history of the page"
+  "Returns the URL to the history of the page."
   ([] `(str "/history"))
   ([page] `(str "/history/" ~page)))
 
 (defmacro page_file
-  "Returns the file path for the wiki page"
+  "Returns the file path for the wiki page."
   [page]
   `(str DATA_DIR "/" ~page))
+
+(defn parse
+  "Returns the parsed html from the content in textile."
+  [content]
+  (let [page_link (fn [page]
+                    (string/join "" (en/emit* (en/html [:a {:href (page_url page)} page]))))]
+    (string/replace (textile/parse content) #"\[([A-Z]\w+)\]" (page_link "$1"))))
 
 ;; the pages
 (en/deftemplate view
@@ -60,7 +67,7 @@
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit_url page))
   [:a.history_url] (en/set-attr :href (history_url page))
-  [:div#content] (en/html-content (try (textile/parse (slurp (page_file page)))
+  [:div#content] (en/html-content (try (parse (slurp (page_file page)))
                                (catch FileNotFoundException e "")))
   [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX")) ;TODO
 
