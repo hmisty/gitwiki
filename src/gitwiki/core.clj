@@ -1,6 +1,6 @@
 (ns gitwiki.core
   (:gen-class)
-  (:import (java.io FileNotFoundException))
+  (:import [java.io FileNotFoundException])
   (:use [clojure.pprint]
         [compojure.core :only (GET POST defroutes)]
         [ring.middleware.basic-authentication])
@@ -9,7 +9,8 @@
             [net.cgrand.enlive-html :as en]
             [compojure.handler]
             [compojure.route]
-            [clojure.java.io :as io]))
+            [clojure.java.io :as io]
+            [gitwiki.textile :as textile]))
 
 ;; some configs
 (def PROJECT "GitWiki")
@@ -59,7 +60,7 @@
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit_url page))
   [:a.history_url] (en/set-attr :href (history_url page))
-  [:div#content] (en/content (try (slurp (page_file page)) 
+  [:div#content] (en/html-content (try (textile/parse (slurp (page_file page)))
                                (catch FileNotFoundException e "")))
   [:span#last_modified] (en/content "XXXX-XX-XX XX:XX:XX")) ;TODO
 
