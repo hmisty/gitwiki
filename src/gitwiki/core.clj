@@ -22,11 +22,11 @@
 (defroutes handler
   ;; view
   (GET "/" req (view DEFAULT_PAGE))
-  (GET "/:page" [page] (view page))
+  (GET "/wiki/:page" [page] (view page))
   ;; edit
   ;; history
   ;; static resources
-  (compojure.route/resources "/" {:root THEME}))
+  (compojure.route/resources "/" {:root THEME})
   ;; default route
   (GET "*" req
        ;; FIXME return 404 page
