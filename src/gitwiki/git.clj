@@ -31,7 +31,7 @@
   (-> git .gc .call))
 
 (defn add
-  [git & file-pattern]
+  [git & [file-pattern]]
   (-> git .add (.addFilepattern (or file-pattern ".")) .call))
 
 (defn rm
