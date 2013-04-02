@@ -39,10 +39,10 @@
   (-> git .rm (.addFilepattern file-pattern) .call))
 
 (defn commit
-  [git author & message]
+  [git & [message author]]
   (-> git .commit 
-      (.setAuthor author "no email") ;TODO can be better?
       (.setMessage (or message (str "committed at " (Date.))))
+      (.setAuthor (or author "unknown") "no email") 
       .call))
 
 (defn push
