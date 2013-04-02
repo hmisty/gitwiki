@@ -57,6 +57,13 @@
   [file]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date. (.lastModified (io/file file)))))
 
+(defn commit-time
+  "Returns the formaated date time of the commit."
+  [commit]
+  (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss")
+           (java.util.Date. (* 1000 (-> commit .getCommitTime)))))
+  
+
 ;; the pages
 (en/deftemplate view'
   (en/xml-resource (str THEME "/view.html"))
@@ -102,7 +109,7 @@
   (let [g (git DATA_DIR)
         commits (g :log)] ;; FIXME no HEAD of first created repo will cause an exception
     (en/clone-for [ci commits]
-                  [[:td (en/attr= :name "date")]] (en/content "YMd hms")
+                  [[:td (en/attr= :name "date")]] (en/content (commit-time ci))
                   [[:td (en/attr= :name "author")]] (en/content (-> ci .getAuthorIdent .getName))
                   [[:a (en/attr= :name "page")]]
                   (comp
