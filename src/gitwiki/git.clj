@@ -12,7 +12,7 @@
 
 (defn- clone
   [remote path]
-  (-> Git .cloneRepository (.setURI remote) (.setDirectory (io/file path)) .call))
+  (-> (Git/cloneRepository) (.setURI remote) (.setDirectory (io/file path)) .call))
 
 (defn- init
   [repo]
