@@ -1,6 +1,6 @@
 <!DOCTYPE html [
-	<!ENTITY rarr "&#8594;">
-	<!ENTITY raquo "&#187;">
+<!ENTITY rarr "&#8594;">
+<!ENTITY raquo "&#187;">
 ]>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -21,17 +21,14 @@
 			<h1 id="title"><!-- __history_page__ --></h1>
 		</div>
 
-		<div id="history">
-			<p>
-			<table>
-				<tr><th>Date</th><th>Author</th><th>Page</th><th>Message</th></tr>
+		<div id="history"><p><table>
+				<tr><th>Date</th><th>Author</th><th>Page</th><th></th></tr>
 				<!-- foreach wiki history item -->
-				<tr>
-					<td><!-- __item_date__ --></td>
-					<td class='author'><!-- __item_author__ --></td>
-					<td class='page'><a href="__item_page__"><!-- __item_page__ --></a></td>
-					<td><!-- __item_message__ --></td>
-					<td><a href="__view_url_item_page_commit__">View</a></td>"
+				<tr class="commit">
+					<td name="date"><!-- __item_date__ --></td>
+					<td name="author" class="author"><!-- __item_author__ --></td>
+					<td class="page"><a name="page" href="__item_page__"><!-- __item_page__ --></a></td>
+					<td><a name="view" href="__view_url_item_page_commit__">View</a></td>"
 					<td></td>
 				</tr>
 			</table>

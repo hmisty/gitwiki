@@ -3,7 +3,8 @@
   (:import [java.io FileNotFoundException])
   (:use [clojure.pprint]
         [compojure.core :only (GET POST defroutes)]
-        [ring.middleware.basic-authentication])
+        [ring.middleware.basic-authentication]
+        [gitwiki.git])
   (:require [clojure.string :as string]
             [ring.util.response :as resp]
             [net.cgrand.enlive-html :as en]
@@ -62,11 +63,11 @@
   [page & {user :user}]
   [:title] (en/content [PROJECT " > " page])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history-url] (en/set-attr :href (history-url))
+  [:a.global_history_url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content [page])
-  [:a.edit-url] (en/set-attr :href (edit-url page))
-  [:a.history-url] (en/set-attr :href (history-url page))
+  [:a.edit_url] (en/set-attr :href (edit-url page))
+  [:a.history_url] (en/set-attr :href (history-url page))
   [:div#content] (en/html-content (try (parse (slurp (page-file page)))
                                     (catch FileNotFoundException e "")))
   [:span#last_modified] (en/content (file-modified-time (page-file page)))) ;TODO
@@ -82,7 +83,7 @@
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Editing " page])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history-url] (en/set-attr :href (history-url))
+  [:a.global_history_url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content ["Editing " page])
   [:form] (en/set-attr :action (page-url page))
@@ -94,9 +95,20 @@
   [page & {user :user}]
   [:title] (en/content [PROJECT " > History of " (or page "all")])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history-url] (en/set-attr :href (history-url))
+  [:a.global_history_url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
-  [:h1#title] (en/content ["History of " (or page "all")]))
+  [:h1#title] (en/content ["History of " (or page "all")])
+  [:#history :tr.commit]
+  (let [g (git DATA_DIR)
+        commits (g :log)] ;; FIXME no HEAD of first created repo will cause an exception
+    (en/clone-for [ci commits]
+                  [[:td (en/attr= :name "date")]] (en/content "YMd hms")
+                  [[:td (en/attr= :name "author")]] (en/content (-> ci .getAuthorIdent .getName))
+                  [[:a (en/attr= :name "page")]]
+                  (comp
+                    (en/content "Home")
+                    (en/set-attr :href (page-url "Home")))
+                  [[:a (en/attr= :name "view")]] (en/set-attr :href "ci-view-link"))))
 
 ;; the action
 (defn save
