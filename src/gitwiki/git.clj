@@ -5,6 +5,7 @@
            [org.eclipse.jgit.api Git])
   (:require [clojure.java.io :as io]))
 
+;; References
 ;; http://download.eclipse.org/jgit/docs/latest/apidocs/
 
 (defn- clone
@@ -33,6 +34,13 @@
       (.setAuthor (or author "unknown") "no email") 
       (.setMessage (or message (str "committed at " (Date.))))
       .call))
+
+(defn- log
+  [git & [path]]
+  (seq
+    (if path 
+      (-> git .log (.addPath path) .call)
+      (-> git .log .call))))
 
 (defn- push
   [git]
@@ -65,6 +73,7 @@
         :add     (apply (partial add g) args)
         :rm      (apply (partial rm g) args)
         :commit  (apply (partial commit g) args)
+        :log     (apply (partial log g) args)
         :push    (push g)
         :pull    (pull g)))))
 
