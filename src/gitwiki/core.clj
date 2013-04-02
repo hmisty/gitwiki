@@ -103,7 +103,7 @@
   [req page]
   (let [{user :basic-authentication
          {input "data"} :form-params} req]
-    (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException
+    (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException e.g. without data dir
       (.write w input)))
   (resp/redirect (page-url page)))
 
