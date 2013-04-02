@@ -7,8 +7,9 @@
     [org.eclipse.mylyn.wikitext.textile.core TextileLanguage]
     ))
 
-; http://blog.oio.de/2012/03/21/mylyn-wikitext-an-open-source-library-for-handling-wiki-markup/
-; http://help.eclipse.org/juno/topic/org.eclipse.mylyn.wikitext.help.ui/help/devguide/Using-The-WikiText-Parser.html?cp=44_3_1_1#AdvancedParserUsage
+;; References
+;; http://blog.oio.de/2012/03/21/mylyn-wikitext-an-open-source-library-for-handling-wiki-markup/
+;; http://help.eclipse.org/juno/topic/org.eclipse.mylyn.wikitext.help.ui/help/devguide/Using-The-WikiText-Parser.html?cp=44_3_1_1#AdvancedParserUsage
 
 (defn parse
   "Parse textile and generate HTML."
