@@ -36,11 +36,8 @@
       .call))
 
 (defn- log
-  [git & [path]]
-  (seq
-    (if path 
-      (-> git .log (.addPath path) .call)
-      (-> git .log .call))))
+  ([git] (seq (-> git .log .call)))
+  ([git path] (seq (-> git .log (.addPath path) .call))))
 
 (defn- push
   [git]
