@@ -7,49 +7,64 @@
 
 ;; http://download.eclipse.org/jgit/docs/latest/apidocs/
 
-(defn clone
+(defn- clone
   [remote path]
   (-> Git .cloneRepository (.setURI remote) (.setDirectory (io/file path)) .call))
 
-(defn init
+(defn- init
   [repo]
   (.create repo))
 
-(defn repo
-  [path]
-  (let [r (str path "/.git")
-        repo (FileRepository. r)]
-    (or (.exists (io/file r)) (init repo))
-    repo))
-
-(defn git
-  [repo]
-  (org.eclipse.jgit.api.Git. repo))
-
-(defn gc
-  [repo]
+(defn- gc
+  [git]
   (-> git .gc .call))
 
-(defn add
+(defn- add
   [git & [file-pattern]]
   (-> git .add (.addFilepattern (or file-pattern ".")) .call))
 
-(defn rm
+(defn- rm
   [git file-pattern]
   (-> git .rm (.addFilepattern file-pattern) .call))
 
-(defn commit
+(defn- commit
   [git & [author message]]
   (-> git .commit 
       (.setAuthor (or author "unknown") "no email") 
       (.setMessage (or message (str "committed at " (Date.))))
       .call))
 
-(defn push
+(defn- push
   [git]
   (-> git .push .call))
 
-(defn pull
+(defn- pull
   [git]
   (-> git .pull .call))
+
+(defn- repo
+  [path]
+  (let [r (str path "/.git")
+        repo (FileRepository. r)]
+    (or (.exists (io/file r)) (init repo))
+    repo))
+
+(defn- git'
+  [repo]
+  (org.eclipse.jgit.api.Git. repo))
+
+(defn git
+  [path]
+  (let [r (repo path)
+        g (git' r)]
+    (fn [cmd & args]
+      (case cmd
+        :clone   (apply clone args)
+        :init    (init r)
+        :gc      (gc g)
+        :add     (apply (partial add g) args)
+        :rm      (apply (partial rm g) args)
+        :commit  (apply (partial commit g) args)
+        :push    (push g)
+        :pull    (pull g)))))
 
