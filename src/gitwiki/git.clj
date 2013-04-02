@@ -11,28 +11,39 @@
   [remote path]
   (-> Git .cloneRepository (.setURI remote) (.setDirectory (io/file path)) .call))
 
+(defn init
+  [repo]
+  (.create repo))
+
 (defn repo
   [path]
   (let [r (str path "/.git")
         repo (FileRepository. r)]
-    (or (.exists (io/file r)) (.create repo))
+    (or (.exists (io/file r)) (init repo))
     repo))
-
-(defn create
-  [repo]
-  (.create repo))
 
 (defn git
   [repo]
   (org.eclipse.jgit.api.Git. repo))
 
+(defn gc
+  [repo]
+  (-> git .gc .call))
+
 (defn add
   [git & file-pattern]
   (-> git .add (.addFilepattern (or file-pattern ".")) .call))
 
+(defn rm
+  [git file-pattern]
+  (-> git .rm (.addFilepattern file-pattern) .call))
+
 (defn commit
-  [git & message]
-  (-> git .commit (.setMessage (or message (str "committed at " (Date.)))) .call))
+  [git author & message]
+  (-> git .commit 
+      (.setAuthor author "no email") ;TODO can be better?
+      (.setMessage (or message (str "committed at " (Date.))))
+      .call))
 
 (defn push
   [git]
