@@ -2,6 +2,8 @@
   (:gen-class)
   (:import [java.util Date]
            [org.eclipse.jgit.storage.file FileRepository]
+           [org.eclipse.jgit.treewalk TreeWalk]
+           [org.eclipse.jgit.revwalk RevWalk RevCommit]
            [org.eclipse.jgit.api Git])
   (:require [clojure.java.io :as io]))
 
@@ -39,6 +41,26 @@
   ([git] (seq (-> git .log .call)))
   ([git path] (seq (-> git .log (.addPath path) .call))))
 
+(defn- cat-file
+  ([git path] ;; read the last committed version
+   (let [r (.getRepository git)
+         commits (log git path)
+         c (first commits)
+         tree (-> c .getTree)
+         treewalk (TreeWalk/forPath r path tree)
+         obj (-> treewalk (.getObjectId 0))
+         in (-> r (.open obj) .openStream)]
+     (slurp in)))
+  ([git path rev-spec] ;; read the specified committed version
+   (let [r (.getRepository git)
+         revwalk (RevWalk. r)
+         c (.parseCommit revwalk (.resolve r rev-spec)) ; here
+         tree (-> c .getTree)
+         treewalk (TreeWalk/forPath r path tree)
+         obj (-> treewalk (.getObjectId 0))
+         in (-> r (.open obj) .openStream)]
+     (slurp in))))
+
 (defn- push
   [git]
   (-> git .push .call))
@@ -64,13 +86,14 @@
         g (git' r)]
     (fn [cmd & args]
       (case cmd
-        :clone   (apply clone args)
-        :init    (init r)
-        :gc      (gc g)
-        :add     (apply (partial add g) args)
-        :rm      (apply (partial rm g) args)
-        :commit  (apply (partial commit g) args)
-        :log     (apply (partial log g) args)
-        :push    (push g)
-        :pull    (pull g)))))
+        :clone         (apply clone args)
+        :init          (init r)
+        :gc            (gc g)
+        :add           (apply (partial add g) args)
+        :rm            (apply (partial rm g) args)
+        :commit        (apply (partial commit g) args)
+        :log           (apply (partial log g) args)
+        :cat-file      (apply (partial cat-file g) args)
+        :push          (push g)
+        :pull          (pull g)))))
 
