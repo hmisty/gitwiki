@@ -39,10 +39,10 @@
   (-> git .rm (.addFilepattern file-pattern) .call))
 
 (defn commit
-  [git & [message author]]
+  [git & [author message]]
   (-> git .commit 
-      (.setMessage (or message (str "committed at " (Date.))))
       (.setAuthor (or author "unknown") "no email") 
+      (.setMessage (or message (str "committed at " (Date.))))
       .call))
 
 (defn push
