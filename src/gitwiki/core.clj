@@ -19,11 +19,6 @@
 (def DATA_DIR "data")
 
 ;; helpers
-(defn nil??
-  "Returns y if x is nil, x otherwise."
-  [x y]
-  (if (nil? x) y x))
-
 (defn authenticated? 
   "Returns the logged in username if authenticated."
   [name pass]
@@ -97,11 +92,11 @@
 (en/deftemplate history
   (en/xml-resource (str THEME "/history.html"))
   [page & {user :user}]
-  [:title] (en/content [PROJECT " > History of " (nil?? page "all")])
+  [:title] (en/content [PROJECT " > History of " (or page "all")])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history-url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
-  [:h1#title] (en/content ["History of " (nil?? page "all")]))
+  [:h1#title] (en/content ["History of " (or page "all")]))
 
 ;; the action
 (defn save
