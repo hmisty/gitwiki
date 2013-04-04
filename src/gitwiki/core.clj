@@ -141,9 +141,12 @@
 (defn save
   [req page]
   (let [{user :basic-authentication
-         {input "data"} :form-params} req]
+         {input "data"} :form-params} req
+        g (git DATA_DIR)]
     (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException e.g. without data dir
-      (.write w input)))
+      (.write w input))
+    (g :add page)
+    (g :commit user))
   (resp/redirect (page-url page)))
 
 ;; the handlers
