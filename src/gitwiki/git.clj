@@ -85,7 +85,7 @@
 (defn- cat-file
   ([git path] ;; read the last committed version
    (let [r (.getRepository git)
-         commits (log git path)
+         commits (log' git path)
          c (first commits)
          tree (-> c .getTree)
          treewalk (TreeWalk/forPath r path tree)

@@ -85,8 +85,11 @@
   [:span#edit_or_commit] (if commit (en/content commit)
                            (en/append nil))
   [:a.history_url] (en/set-attr :href (history-url page))
-  [:div#content] (en/html-content (try (parse (slurp (page-file page)))
-                                    (catch FileNotFoundException e "")))
+  [:div#content] 
+  (let [g (git DATA_DIR)
+        file-content (if commit (g :cat-file page commit)
+                       (g :cat-file page))]
+    (en/html-content (parse file-content)))
   [:span#last_modified] (en/content (file-modified-time (page-file page))))
 
 (defn view
