@@ -27,8 +27,8 @@
 
 (defmacro page-url
   "Returns the URL to view the page."
-  [page]
-  `(str "/wiki/" ~page))
+  ([page] `(str "/wiki/" ~page))
+  ([page commit-name] `(str "/wiki/" ~page "/" ~commit-name)))
 
 (defmacro edit-url
   "Returns the URL to edit the page."
@@ -57,12 +57,20 @@
   [file]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date. (.lastModified (io/file file)))))
 
-(defn commit-time
-  "Returns the formaated date time of the commit."
-  [commit]
-  (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss")
-           (java.util.Date. (* 1000 (-> commit .getCommitTime)))))
-  
+(defn git-log-flatten
+  "Flatten the results of (git :log)."
+  [log & [page]]
+  (filter #(if page (= (:file %) page)
+             true)
+          (reduce (fn [coll {name :name, [author-name author-email] :author,
+                             date :date, message :message, 
+                             name-status :name-status}]
+                    (reduce #(conj % {:name name :author-name author-name 
+                                      :author-email author-email :date date 
+                                      :message message :file (first %2)
+                                      :change-type (second %2)}) 
+                            coll name-status))
+                  '() log)))
 
 ;; the pages
 (en/deftemplate view'
@@ -107,15 +115,17 @@
   [:h1#title] (en/content ["History of " (or page "all")])
   [:#history :tr.commit]
   (let [g (git DATA_DIR)
-        commits (g :log)] ;; FIXME no HEAD of first created repo will cause an exception
+        commits (if page (git-log-flatten (g :log page) page)
+                  (git-log-flatten (g :log)))]
     (en/clone-for [ci commits]
-                  [[:td (en/attr= :name "date")]] (en/content (commit-time ci))
-                  [[:td (en/attr= :name "author")]] (en/content (-> ci .getAuthorIdent .getName))
+                  [[:td (en/attr= :name "date")]] (en/content (:date ci))
+                  [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
                   [[:a (en/attr= :name "page")]]
                   (comp
-                    (en/content "Home")
-                    (en/set-attr :href (page-url "Home")))
-                  [[:a (en/attr= :name "view")]] (en/set-attr :href "ci-view-link"))))
+                    (en/content (:file ci))
+                    (en/set-attr :href (page-url (:file ci))))
+                  [[:a (en/attr= :name "view")]] 
+                  (en/set-attr :href (page-url (:file ci) (:name ci))))))
 
 ;; the action
 (defn save
