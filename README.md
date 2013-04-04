@@ -14,7 +14,7 @@ Open browser to http://127.0.0.1:8083
 
 Theme
 =======
-It supports theme. The default one shipped in resources/default is borrowed from [wigit][https://github.com/remko/wigit].
+It supports theme. The default one shipped in resources/default is borrowed from [wigit](https://github.com/remko/wigit).
 
 You can absolutely compose your own flavored themes:
 
