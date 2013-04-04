@@ -85,12 +85,17 @@
   [:span#edit_or_commit] (if commit (en/content commit)
                            (en/append nil))
   [:a.history_url] (en/set-attr :href (history-url page))
-  [:div#content] 
-  (let [g (git DATA_DIR)
-        file-content (if commit (g :cat-file page commit)
-                       (g :cat-file page))]
-    (en/html-content (parse file-content)))
-  [:span#last_modified] (en/content (file-modified-time (page-file page))))
+  [:div#content] (en/html-content
+                   (let [g (git DATA_DIR)
+                         file-content (if commit (g :cat-file page commit)
+                                        (g :cat-file page))]
+                     (parse file-content)))
+  [:span#last_modified] (en/content 
+                          (let [g (git DATA_DIR)
+                                ci (first (filter #(if commit (= (:name %) commit)
+                                                     true) (g :log page)))
+                                date (:date ci)]
+                            date)))
 
 (defn view
   [page & more]
