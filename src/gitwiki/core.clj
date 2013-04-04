@@ -28,7 +28,7 @@
 (defmacro page-url
   "Returns the URL to view the page."
   ([page] `(str "/wiki/" ~page))
-  ([page commit-name] `(str "/wiki/" ~page "/" ~commit-name)))
+  ([page commit] `(str "/wiki/" ~page "/" ~commit)))
 
 (defmacro edit-url
   "Returns the URL to edit the page."
@@ -75,22 +75,24 @@
 ;; the pages
 (en/deftemplate view'
   (en/xml-resource (str THEME "/view.html"))
-  [page & {user :user}]
+  [page & {commit :commit user :user}]
   [:title] (en/content [PROJECT " > " page])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
   [:span.username] (en/content ["| Logged in as " user])
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit-url page))
+  [:span#edit_or_commit] (if commit (en/content commit)
+                           (en/append nil))
   [:a.history_url] (en/set-attr :href (history-url page))
   [:div#content] (en/html-content (try (parse (slurp (page-file page)))
                                     (catch FileNotFoundException e "")))
-  [:span#last_modified] (en/content (file-modified-time (page-file page)))) ;TODO
+  [:span#last_modified] (en/content (file-modified-time (page-file page))))
 
 (defn view
-  [page & {user :user}]
+  [page & more]
   (if (.exists (io/file (page-file page)))
-    (view' page :user user)
+    (apply (partial view' page) more)
     (resp/redirect (edit-url page))))
 
 (en/deftemplate edit
@@ -140,6 +142,9 @@
 (defroutes handler
   ;; view
   (GET "/" req (view DEFAULT_PAGE :user (:basic-authentication req)))
+  (GET "/wiki/:page/:commit" [page commit :as req] 
+       (view page :commit commit :user (:basic-authentication req)))
+  (GET "/wiki/:page" [page :as req] (view page :user (:basic-authentication req)))
   (GET "/wiki/:page" [page :as req] (view page :user (:basic-authentication req)))
   (POST "/wiki/:page" [page :as req] (save req page))
   ;; edit
