@@ -8,7 +8,8 @@
                  [ring-basic-authentication "1.0.2"]
                  [compojure "1.0.1"]
                  [enlive "1.1.1"]
-                 [org.eclipse.mylyn.wikitext/wikitext.textile "0.9.4.I20090220-1600-e3x"]
+                 #_[org.eclipse.mylyn.wikitext/wikitext.textile "0.9.4.I20090220-1600-e3x"]
+                 [org.fusesource.wikitext/textile-core "1.4"]
                  [org.eclipse.jgit/org.eclipse.jgit.pgm "2.3.1.201302201838-r"]]
   :main gitwiki.server 
   :plugins [[lein-ring "0.7.5"]]
