@@ -146,7 +146,7 @@
   (let [{user :basic-authentication
          {input "data"} :form-params} req
         g (git DATA_DIR)]
-    (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException e.g. without data dir
+    (with-open [w (io/writer (page-file page))] ;TODO handle exception e.g. no permission to create DATA_DIR
       (.write w input))
     (g :add page)
     (g :commit user)
