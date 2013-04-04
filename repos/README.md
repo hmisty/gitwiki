@@ -47,4 +47,7 @@ For example,
 	mvn deploy:deploy-file -DgroupId=local -DartifactId=wikitext-core -Dversion=1.8.0 -Dpackaging=jar -Dfile=/Users/liu/Downloads/wikitext-standalone-1.8.0-SNAPSHOT/org.eclipse.mylyn.wikitext.core_1.8.0.I20130327-2301.jar -Durl=file:repos
 	mvn deploy:deploy-file -DgroupId=local -DartifactId=wikitext-textile-core -Dversion=1.8.0 -Dpackaging=jar -Dfile=/Users/liu/Downloads/wikitext-standalone-1.8.0-SNAPSHOT/org.eclipse.mylyn.wikitext.textile.core_1.8.0.I20130327-2301.jar -Durl=file:repos
 
+## Important
+
+DO NOT ignoring ```*jar``` in your .gitignore!
 
