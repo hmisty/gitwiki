@@ -49,5 +49,5 @@ For example,
 
 ## Important
 
-DO NOT ignoring ```*jar``` in your .gitignore!
+DO NOT ignore ```*jar``` in your .gitignore!
 
