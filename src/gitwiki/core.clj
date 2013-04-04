@@ -61,7 +61,8 @@
 (defn git-log-flatten
   "Flatten the results of (git :log)."
   [log & [page]]
-  (filter #(if page (= (:file %) page)
+  (reverse 
+    (filter #(if page (= (:file %) page)
              true)
           (reduce (fn [coll {name :name, [author-name author-email] :author,
                              date :date, message :message, 
@@ -71,7 +72,7 @@
                                       :message message :file (first %2)
                                       :change-type (second %2)}) 
                             coll name-status))
-                  '() log)))
+                  '() log))))
 
 ;; the pages
 (en/deftemplate view'
