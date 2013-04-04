@@ -171,8 +171,8 @@
   (compojure.route/resources "/" {:root THEME})
   ;; default route
   (GET "*" req
-       ;; FIXME return 404 page
-       {:status 200 :body (with-out-str (pprint req))}))
+       {:status 404 :body "Not Found"}
+       #_{:status 200 :body (with-out-str (pprint req))}))
 
 ;; the web app
 (def app
