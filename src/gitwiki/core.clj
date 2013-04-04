@@ -18,6 +18,7 @@
 (def DEFAULT_PAGE "Home")
 (def THEME "default")
 (def DATA_DIR "data")
+(def HISTORY_LIMIT 50)
 
 ;; helpers
 (defn authenticated? 
@@ -125,8 +126,8 @@
   [:h1#title] (en/content ["History of " (or page "all")])
   [:#history :tr.commit]
   (let [g (git DATA_DIR)
-        commits (if page (git-log-flatten (g :log page) page)
-                  (git-log-flatten (g :log)))]
+        commits (if page (git-log-flatten (g :log page :limit HISTORY_LIMIT) page)
+                  (git-log-flatten (g :log :limit HISTORY_LIMIT)))]
     (en/clone-for [ci commits]
                   [[:td (en/attr= :name "date")]] (en/content (:date ci))
                   [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
@@ -135,7 +136,8 @@
                     (en/content (:file ci))
                     (en/set-attr :href (page-url (:file ci))))
                   [[:a (en/attr= :name "view")]] 
-                  (en/set-attr :href (page-url (:file ci) (:name ci))))))
+                  (en/set-attr :href (page-url (:file ci) (:name ci)))))
+  [:#history_limit] (en/content [(str HISTORY_LIMIT)]))
 
 ;; the action
 (defn save
@@ -146,7 +148,8 @@
     (with-open [w (io/writer (page-file page))] ;TODO FileNotFoundException e.g. without data dir
       (.write w input))
     (g :add page)
-    (g :commit user))
+    (g :commit user)
+    (g :gc))
   (resp/redirect (page-url page)))
 
 ;; the handlers

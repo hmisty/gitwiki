@@ -61,8 +61,8 @@
         commit-tree-itor (CanonicalTreeParser. nil (.getObjectReader revwalk) (.getTree commit))]
     (map #(vector (.getNewPath %) (.. % getChangeType toString))
          (seq (if 
-           (= parent-count 0) (.scan df empty-tree-itor commit-tree-itor)
-           (.scan df (.. commit (getParent 0) getTree) commit-tree))))))
+                (= parent-count 0) (.scan df empty-tree-itor commit-tree-itor)
+                (.scan df (.. commit (getParent 0) getTree) commit-tree))))))
 
 (defn- expand-rev-commit
   "Expand the information of a list of RevCommit:s."
@@ -75,17 +75,21 @@
           :name-status (name-status git ci)}) commits))
 
 (defn- log'
-  ([git] (seq (-> git .log .call)))
-  ([git path] (seq (-> git .log (.addPath path) .call))))
+  [git & args]
+  (if (even? (count args))
+    (let [{n :limit} args]
+      (seq (.. git log (setMaxCount (or n -1)) call)))
+    (let [[path & {n :limit}] args]
+      (seq (.. git log (addPath path) (setMaxCount (or n -1)) call)))))
 
 (defn- log 
-  ([git] (expand-rev-commit git (log' git)))
-  ([git path] (expand-rev-commit git (log' git path))))
+  [git & args]
+  (expand-rev-commit git (apply (partial log' git) args)))
 
 (defn- cat-file
   ([git path] ;; read the last committed version
    (let [r (.getRepository git)
-         commits (log' git path)
+         commits (log' git path 1)
          c (first commits)
          tree (-> c .getTree)
          treewalk (TreeWalk/forPath r path tree)
@@ -122,6 +126,19 @@
   (org.eclipse.jgit.api.Git. repo))
 
 (defn git
+  "Construct a git function on the given path.
+  The git function can accept the following args:
+  [:clone]
+  [:init]
+  [:gc]
+  [:add] [:add file-pattern]
+  [:rm file-pattern]
+  [:commit] [:commit author-name] [:commit author-name message]
+  [:log] [:log limit n] [:log path] [:log path :limit n]
+  [:cat-file path] [:cat-file path commit]
+  [:push]
+  [:pull]
+  " 
   [path]
   (let [r (repo path)
         g (git' r)]

@@ -140,3 +140,9 @@ acronym, abbr {
 #history td.page {
 	text-align: center;
 }
+
+#pager {
+	font-size: 0.7em;
+	margin-top: .5em;
+}
+
