@@ -11,7 +11,8 @@
             [compojure.handler]
             [compojure.route]
             [clojure.java.io :as io]
-            [gitwiki.textile :as textile]))
+            [gitwiki.textile :as textile]
+            [gitwiki.auth :as auth]))
 
 ;; some configs
 (def PROJECT "GitWiki")
@@ -63,16 +64,16 @@
   [log & [page]]
   (reverse 
     (filter #(if page (= (:file %) page)
-             true)
-          (reduce (fn [coll {name :name, [author-name author-email] :author,
-                             date :date, message :message, 
-                             name-status :name-status}]
-                    (reduce #(conj % {:name name :author-name author-name 
-                                      :author-email author-email :date date 
-                                      :message message :file (first %2)
-                                      :change-type (second %2)}) 
-                            coll name-status))
-                  '() log))))
+               true)
+            (reduce (fn [coll {name :name, [author-name author-email] :author,
+                               date :date, message :message, 
+                               name-status :name-status}]
+                      (reduce #(conj % {:name name :author-name author-name 
+                                        :author-email author-email :date date 
+                                        :message message :file (first %2)
+                                        :change-type (second %2)}) 
+                              coll name-status))
+                    '() log))))
 
 ;; the pages
 (en/deftemplate view'
@@ -81,7 +82,7 @@
   [:title] (en/content [PROJECT " > " page])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:span.username] (en/content ["| Logged in as " user])
+  [:span.username] (en/content (if user ["| Logged in as " user]))
   [:h1#title] (en/content [page])
   [:a.edit_url] (en/set-attr :href (edit-url page))
   [:span#edit_or_commit] (if commit (en/content commit)
@@ -123,7 +124,7 @@
   [:title] (en/content [PROJECT " > History of " (or page "all")])
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:span.username] (en/content ["| Logged in as " user])
+  [:span.username] (en/content (if user ["| Logged in as " user]))
   [:h1#title] (en/content ["History of " (or page "all")])
   [:#history :tr.commit]
   (let [g (git DATA_DIR)
@@ -154,28 +155,37 @@
   (resp/redirect (page-url page)))
 
 ;; the handlers
-(defroutes handler
+(defroutes public-handler
+  ;; for debugging
+  #_(GET "*" req {:status 200 :body (with-out-str (pprint req))})
   ;; view
-  (GET "/" req (view DEFAULT_PAGE :user (:basic-authentication req)))
+  (GET "/" req (view DEFAULT_PAGE :user (auth/user req)))
   (GET "/wiki/:page/:commit" [page commit :as req] 
-       (view page :commit commit :user (:basic-authentication req)))
-  (GET "/wiki/:page" [page :as req] (view page :user (:basic-authentication req)))
-  (GET "/wiki/:page" [page :as req] (view page :user (:basic-authentication req)))
+       (view page :commit commit :user (auth/user req)))
+  (GET "/wiki/:page" [page :as req] (view page :user (auth/user req)))
+  (GET "/wiki/:page" [page :as req] (view page :user (auth/user req)))
+  ;; history
+  (GET "/history" req (history nil :user (auth/user req)))
+  (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
+  ;; static resources
+  (compojure.route/resources "/" {:root THEME}))
+
+(defroutes protected-handler
+  ;; save
   (POST "/wiki/:page" [page :as req] (save req page))
   ;; edit
-  (GET "/edit/:page" [page :as req] (edit page :user (:basic-authentication req)))
-  ;; history
-  (GET "/history" req (history nil :user (:basic-authentication req)))
-  (GET "/history/:page" [page :as req] (history page :user (:basic-authentication req)))
-  ;; static resources
-  (compojure.route/resources "/" {:root THEME})
-  ;; default route
-  (GET "*" req
-       {:status 404 :body "Not Found"}
-       #_{:status 200 :body (with-out-str (pprint req))}))
+  (GET "/edit/:page" [page :as req] (edit page :user (auth/user req))))
+
+(defroutes last-handler
+  ;; 404
+  (compojure.route/not-found "Not Found"))
+
+(defroutes handler
+  public-handler
+  (wrap-basic-authentication protected-handler authenticated?)
+  last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
 
 ;; the web app
 (def app
   (-> handler
-      (wrap-basic-authentication authenticated?)
       (compojure.handler/site)))
