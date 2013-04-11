@@ -29,8 +29,8 @@
 
 (defmacro page-url
   "Returns the URL to view the page."
-  ([page] `(str "/wiki/" ~page))
-  ([page commit] `(str "/wiki/" ~page "/" ~commit)))
+  ([page] `(str "/page/" ~page))
+  ([page commit] `(str "/page/" ~page "/" ~commit)))
 
 (defmacro edit-url
   "Returns the URL to edit the page."
@@ -160,10 +160,10 @@
   #_(GET "*" req {:status 200 :body (with-out-str (pprint req))})
   ;; view
   (GET "/" req (view DEFAULT_PAGE :user (auth/user req)))
-  (GET "/wiki/:page/:commit" [page commit :as req] 
+  (GET "/page/:page/:commit" [page commit :as req] 
        (view page :commit commit :user (auth/user req)))
-  (GET "/wiki/:page" [page :as req] (view page :user (auth/user req)))
-  (GET "/wiki/:page" [page :as req] (view page :user (auth/user req)))
+  (GET "/page/:page" [page :as req] (view page :user (auth/user req)))
+  (GET "/page/:page" [page :as req] (view page :user (auth/user req)))
   ;; history
   (GET "/history" req (history nil :user (auth/user req)))
   (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
@@ -172,7 +172,7 @@
 
 (defroutes protected-handler
   ;; save
-  (POST "/wiki/:page" [page :as req] (save req page))
+  (POST "/page/:page" [page :as req] (save req page))
   ;; edit
   (GET "/edit/:page" [page :as req] (edit page :user (auth/user req))))
 
