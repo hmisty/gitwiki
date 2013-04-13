@@ -12,7 +12,7 @@ Quick Start
 
 Open browser to http://127.0.0.1:8083
 
-* A default testing user test with password test is built in for your start.
+* Two testing users test and tom with password test and tom were created for your start.
 
 Theme
 =======

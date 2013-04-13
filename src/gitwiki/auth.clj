@@ -2,33 +2,40 @@
   {:author "Evan Liu (hmisty)"}
   (:gen-class)
   (:require [clojure.data.codec.base64 :as base64]
-			[clojure.java.io :as io])
-  (:import (java.security MessageDigest)
-		 (java.io FileInputStream FileOutputStream)
-		 (org.apache.commons.codec.binary Base64))
-  )
+            [clojure.string :as string]
+            [clojure.java.io :as io]))
+
+(def DEFAULT_FILE "gitwiki.user")
 
 (defn- byte-transform
-  "Used to encode and decode strings."
-  [direction-fn string]
-  (reduce str (map char (direction-fn (.getBytes string)))))
+  "Returns the transformed bytes of the given bytes data."
+  [direction-fn data]
+  (reduce str (map char (direction-fn data))))
 
-(defn- encode-base64
-  "Will do a base64 encoding of a string and return a string."
-  [^String string]
-  (byte-transform base64/encode string))
+(defn- base64-encode-bytes
+  "Returns the base-64 encoded string of the given bytes data."
+  [data]
+  (byte-transform base64/encode data))
 
-(defn- decode-base64
-  "Will do a base64 decoding of a string and return a string."
-  [^String string]
-  (byte-transform base64/decode string))
+(defn- base64-decode-bytes
+  "Returns the base-64 decoded string of the given bytes data."
+  [data]
+  (byte-transform base64/decode data))
+
+(defn- base64-encode
+  [s]
+  (base64-encode-bytes (.getBytes s)))
+
+(defn- base64-decode
+  [s]
+  (base64-decode-bytes (.getBytes s)))
 
 (defn user
   "Returns the logged in username by extracting from the HTTP request header."
   [req]
   (let [auth ((:headers req) "authorization")
         cred (and auth
-                  (decode-base64
+                  (base64-decode
                     (last
                       (re-find #"^Basic (.*)$" auth))))
         user (and cred
@@ -36,32 +43,20 @@
                     (re-find #"^(.*):" cred)))]
     user))
 
-(def line-data 
-  "Return an atom Map with '' value"
-  (atom {:name "" :passwd ""}))
-
-(defn get-line
-  "Return the parsed string line" 
-  [line]
-  (reset! line-data {:name (let [l line] (.substring l 0 (.indexOf l ":" 0))) 
-		     :passwd (let [l line] (.substring l (+ (.indexOf l ":" 0) 1))) }))
-
-(defn open-file 
-  "Open the file this path and Return parsed each line data . path eg: src/auth/gitwiki.us"
-  [path]
-  (with-open [rdr (io/reader path)] (doall (map #(get-line %) (line-seq rdr)))))
-
-(defn get-hash 
-  "Return the Bash64-encoded hash data of some digest type"
-  [type data]
-  (Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) )))
+(defn read-users
+  "Returns a map of user password read from the given file or default file gitwiki.user."
+  ([] (read-users DEFAULT_FILE))
+  ([file] (reduce #(apply (partial assoc %) (string/split %2 #":")) {} 
+                          (string/split-lines (slurp file)))))
 
 (defn sha1 
-  "Return sha1 digested data"
-  [data]
-  (get-hash "SHA1" data))
+  "Returns sha1 of the given string s."
+  [s]
+  (.digest (java.security.MessageDigest/getInstance "SHA1") (.getBytes s)))
 
-(defn is-auth-user? 
-  "Return if the n(name) and p(password) is authenticated , f is the password file location"
-  [n p f]
-  (reduce #(or %1 %2) (map #(and (= (:name %) n) (= (:passwd %) (str "{SHA}" (sha1 p)))) (open-file f))))
+(defn is-valid-user? 
+  "Returns true if the user and password is correct."
+  [user password]
+  (let [users (read-users)]
+    (= (users user) (str "{SHA}" (base64-encode-bytes (sha1 password))))))
+
