@@ -1,7 +1,7 @@
 #!/bin/bash
 JAVA=/usr/bin/java
 DIR=target
-JAR=$DIR/gitwiki-0.1.0-SNAPSHOT-standalone.jar 
+JAR=$DIR/gitwiki-0.1.1-SNAPSHOT-standalone.jar 
 LOG=$DIR/gitwiki.log
 PID=$DIR/gitwiki.pid
 
