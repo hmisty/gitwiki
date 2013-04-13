@@ -13,7 +13,7 @@
                  #_[org.eclipse.mylyn.wikitext/wikitext.textile "0.9.4.I20090220-1600-e3x"]
                  #_[org.fusesource.wikitext/textile-core "1.4"]
                  [org.eclipse.jgit/org.eclipse.jgit.pgm "2.3.1.201302201838-r"]
-				 [commons-codec/commons-codec "1.7"]]
+                 [commons-codec/commons-codec "1.7"]]
   :repositories {"local-repos" "file:repos"}
   :main gitwiki.server 
   :plugins [[lein-ring "0.7.5"]]
