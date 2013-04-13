@@ -12,6 +12,8 @@ Quick Start
 
 Open browser to http://127.0.0.1:8083
 
+* A default testing user test with password test is built in for your start.
+
 Theme
 =======
 It supports theme. The default one shipped in resources/default is borrowed from [wigit](https://github.com/remko/wigit).
@@ -22,6 +24,14 @@ You can absolutely compose your own flavored themes:
 * edit.html - the edit page
 * history.html - the history page
 * style.css - the style
+
+Authentication
+=======
+HTTP Basic Authentication is employed.
+
+To create or update user and password, use htpasswd:
+
+	htpasswd -s gitwiki.user USERNAME
 
 Under the Hood
 =======
