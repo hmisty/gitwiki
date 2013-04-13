@@ -10,15 +10,17 @@ Quick Start
 
 (make sure you have java first)
 
-if you don't have lein:
+	git clone https://github.com/hmisty/gitwiki.git
+	cd gitwiki
+
+If you already have lein in your PATH:
+
+	lein run
+
+If you don't have lein:
 
 	curl -O https://raw.github.com/technomancy/leiningen/stable/bin/lein
 	chmod +x lein
-
-then:
-
-	git clone https://github.com/hmisty/gitwiki.git
-	cd gitwiki
 	./lein run
 
 Open browser to http://127.0.0.1:8083
