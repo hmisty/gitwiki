@@ -13,6 +13,7 @@ Quick Start
 if you don't have lein:
 
 	curl -O https://raw.github.com/technomancy/leiningen/stable/bin/lein
+	chmod +x lein
 
 then:
 
