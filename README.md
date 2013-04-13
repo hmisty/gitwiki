@@ -1,7 +1,9 @@
 gitwiki
 =======
 
-A simple, light and easy to use wiki with git backend
+A lightweight and intuitive multi-user wiki with git backend.
+
+Demo: http://wiki.liuconsulting.com
 
 Quick Start
 =======
