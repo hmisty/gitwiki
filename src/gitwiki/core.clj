@@ -25,7 +25,7 @@
 (defn authenticated? 
   "Returns the logged in username if authenticated."
   [name pass]
-  (and (= name "test") (= pass "test") "test"))
+  (is-auth-user?  name pass "src/auth/gitwiki.us"))
 
 (defmacro page-url
   "Returns the URL to view the page."

@@ -36,122 +36,32 @@
                     (re-find #"^(.*):" cred)))]
     user))
 
-;================================================================================================
-
-
-(defrecord LineData [name passwd])
-
-(defn get-line [line-str] 
-	(->LineData 
-		(let [line line-str] (.substring line 0 (.indexOf line ":" 0))) 
-		(let [line line-str] (.substring line (+ (.indexOf line ":" 0) 1))) 
-	))
-
-(defn openF []
-	(with-open [rdr (io/reader "src/gitwiki/gitwiki.us")] (doall (map #(get-line %) (line-seq rdr))))
-)
-
-;Apache_htpasswd_sha1_Java
-;"{SHA}" + new sun.misc.BASE64Encoder().encode(java.security.MessageDigest.getInstance("SHA1").digest(password.getBytes()))
-
-(defn get-hash [type data]
-	(Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) )))	
-(defn sha1 [data]
-	(get-hash "SHA1" data))
-
-
-(defn is-auth-user? [n p]
-	(reduce #(or %1 %2) (map #(and (= (:name %) n) (= (:passwd %) (str "{SHA}" (sha1 p)))) (openF)))
-)
-
-	
-	;
-	;
-	;======================================================
-	;
-	;ADD DEPS
-	;
-	;[commons-codec/commons-codec "1.7"]
-	;
-	;
-	;*************************************************
-	;
-	;
-	;
-	;REPL TEST COMMANDS
-	;
-	;=================================================
-	;
-	;(take 1 (line-seq (reader "src/examples/gitwiki.us")))
-	;
-	;(with-open [rdr (reader "src/examples/gitwiki.us")] (count (line-seq rdr)))
-	;
-	;(with-open [rdr (reader "src/examples/gitwiki.us")] (doall (line-seq rdr)))
-	;
-	;(.indexOf "read-line-data" ":" 0)
-	;
-	;
-	;
-	;=================================================
-	;
-	;(let [line line-str] (.substring line 0 (.indexOf line ":" 0)))
-	;
-	;(let [line "aaa:bccc"] (.substring line (+ (.indexOf line ":" 0) 1)))
-	;
-	;=================================================
-	;
-	;(defrecord LineData [name passwd])
-	;(defn get-line [line-str] 
-	;	(->LineData 
-	;		(let [line line-str] (.substring line 0 (.indexOf line ":" 0))) 
-	;		(let [line line-str] (.substring line (+ (.indexOf line ":" 0) 1))) 
-	;	))
-	;
-	;=================================================
-	;
-	;(defn openF []
-	;	(with-open [rdr (reader "src/examples/gitwiki.us")] (doall (map #(get-line %) (line-seq rdr))))
-	;)
-	;=================================================
-	;
-	;
-	;(defn my-or [m n] (or m n))
-	;
-	;
-	;(defn is-auth-user? [n p]
-	;	(reduce #(or %1 %2) (map #(and (= (:name %) n) (= (:passwd %) p)) (openF)))
-	;)
-	;
-	;=================================================
-	;
-	;(filter is-auth-user? )
-	;
-	;=================================================
-	;
-	;
-	;(select #(and (= (:name %) "aaa") (= (:passwd %) "bccc"))  {:name })
-	;
-	;
-	;=================================================
-	;
-	;
-	;(Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance "sha1") (.getBytes "123")))
-	;
-	;==================================================
-	;
-	;(defn md5
-	; "basic : Generate a md5 checksum for the given string"
-	; [token]
-	;  (let [hash-bytes
-	;		 (doto (java.security.MessageDigest/getInstance "MD5")
-	;			   (.reset)
-	;			   (.update (.getBytes token)))]
-	;	   (.toString
-	;		 (new java.math.BigInteger 1 (.digest hash-bytes)) 
-	;		 ; Positive and the size of the number
-	;		 16)))
-	;
-
-
-
-
+(def line-data 
+  "Return an atom Map with '' value"
+  (atom {:name "" :passwd ""}))
+  
+(defn get-line
+  "Return the parsed string line" 
+  [line]
+  (reset! line-data {:name (let [l line] (.substring l 0 (.indexOf l ":" 0))) 
+					 :passwd (let [l line] (.substring l (+ (.indexOf l ":" 0) 1))) }))
+					 
+(defn open-file 
+  "Open the file this path and Return parsed each line data . path eg: src/auth/gitwiki.us"
+  [path]
+  (with-open [rdr (io/reader path)] (doall (map #(get-line %) (line-seq rdr)))))
+  
+(defn get-hash 
+  "Return the Bash64-encoded hash data of some digest type"
+  [type data]
+  (Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) )))	
+  
+(defn sha1 
+  "Return sha1 digested data"
+  [data]
+  (get-hash "SHA1" data))
+  
+(defn is-auth-user? 
+  "Return if the n(name) and p(password) is authenticated , f is the password file location"
+  [n p f]
+  (reduce #(or %1 %2) (map #(and (= (:name %) n) (= (:passwd %) (str "{SHA}" (sha1 p)))) (open-file f))))
