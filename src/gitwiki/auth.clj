@@ -39,28 +39,28 @@
 (def line-data 
   "Return an atom Map with '' value"
   (atom {:name "" :passwd ""}))
-  
+
 (defn get-line
   "Return the parsed string line" 
   [line]
   (reset! line-data {:name (let [l line] (.substring l 0 (.indexOf l ":" 0))) 
-					 :passwd (let [l line] (.substring l (+ (.indexOf l ":" 0) 1))) }))
-					 
+		     :passwd (let [l line] (.substring l (+ (.indexOf l ":" 0) 1))) }))
+
 (defn open-file 
   "Open the file this path and Return parsed each line data . path eg: src/auth/gitwiki.us"
   [path]
   (with-open [rdr (io/reader path)] (doall (map #(get-line %) (line-seq rdr)))))
-  
+
 (defn get-hash 
   "Return the Bash64-encoded hash data of some digest type"
   [type data]
-  (Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) )))	
-  
+  (Base64/encodeBase64String (.digest (java.security.MessageDigest/getInstance type) (.getBytes data) )))
+
 (defn sha1 
   "Return sha1 digested data"
   [data]
   (get-hash "SHA1" data))
-  
+
 (defn is-auth-user? 
   "Return if the n(name) and p(password) is authenticated , f is the password file location"
   [n p f]
