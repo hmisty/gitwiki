@@ -12,6 +12,7 @@
             [compojure.route]
             [clojure.java.io :as io]
             [gitwiki.textile :as textile]
+            [gitwiki.markdown :as markdown]
             [gitwiki.auth :as auth]))
 
 ;; some configs
@@ -47,12 +48,14 @@
   [page]
   `(str DATA_DIR "/" ~page))
 
-(defn parse
-  "Returns the parsed html from the content in textile."
-  [content]
-  (let [page-link (fn [page]
-                    (string/join "" (en/emit* (en/html [:a {:href (page-url page)} page]))))]
-    (string/replace (textile/parse content) #"\[([A-Z]\w+)\]" (page-link "$1"))))
+(defn get-parser
+  "Returns the parser for the pagename."
+  [pagename]
+  (let [lang (or (last (re-find #".(md|markdown|textile)$" pagename)) "markdown")]
+    (case lang
+      "md"        markdown/parse
+      "markdown"  markdown/parse
+      "textile"   textile/parse)))
 
 (defn file-modified-time
   "Returns the formatted date time of the last modified time of the specified file."
@@ -92,7 +95,7 @@
                    (let [g (git DATA_DIR)
                          file-content (if commit (g :cat-file page commit)
                                         (g :cat-file page))]
-                     (parse file-content)))
+                     ((get-parser page) file-content)))
   [:span#last_modified] (en/content 
                           (let [g (git DATA_DIR)
                                 ci (first (filter #(if commit (= (:name %) commit)

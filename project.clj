@@ -1,4 +1,4 @@
-(defproject gitwiki "0.1.1-SNAPSHOT"
+(defproject gitwiki "0.2.0-SNAPSHOT"
   :description "gitwiki: a simple, light and easy to use wiki with git backend"
   :url "http://github.com/hmisty/gitwiki"
   :license {:name "Eclipse Public License"
@@ -12,7 +12,8 @@
                  [local/wikitext-textile-core "1.8.0"]
                  #_[org.eclipse.mylyn.wikitext/wikitext.textile "0.9.4.I20090220-1600-e3x"]
                  #_[org.fusesource.wikitext/textile-core "1.4"]
-                 [org.eclipse.jgit/org.eclipse.jgit.pgm "2.3.1.201302201838-r"]]
+                 [org.eclipse.jgit/org.eclipse.jgit.pgm "2.3.1.201302201838-r"]
+                 [markdown-clj "0.9.19"]]
   :repositories {"local-repos" "file:repos"}
   :main gitwiki.server 
   :plugins [[lein-ring "0.7.5"]]
