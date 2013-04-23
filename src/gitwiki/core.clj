@@ -195,7 +195,7 @@
         filep (upload-file page)
         filen (upload-file page filename)]
     (if (not (.exists (io/file filep)))
-      (.mkdir (File. filep)))
+      (.mkdirs (File. filep)))
     (io/copy (io/file upfile) 
              (io/file filen)))
   (resp/redirect (page-url page)))
