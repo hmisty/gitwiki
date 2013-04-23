@@ -13,4 +13,5 @@
        "/history" (core/history-url)
        "/history/test" (core/history-url "test")
        "data/test" (core/page-file "test")
-       "<p>test</p>" (core/parse "test")))
+       "<p>test</p>" (core/parse "test"))
+  (is (< (.compareTo "2013-04-16 00:00:00" (core/file-modified-time "test/gitwiki/core_test.clj")) 0)))
