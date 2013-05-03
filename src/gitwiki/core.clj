@@ -73,6 +73,16 @@
   [file]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date. (.lastModified (io/file file)))))
 
+(defn page-file-list
+  "Returns the file list information of the specified page"
+  [page]
+  (map (fn [f] {:name (.getName f) 
+                :size (str (.length f) "B") 
+                :time (file-modified-time f) 
+                :path (str "/files/" page "/" (.getName f))})
+       (filter #(.isFile %)
+               (.listFiles (File. (upload-file page))))))
+
 (defn git-log-flatten
   "Flatten the results of (git :log)."
   [log & [page]]
@@ -108,6 +118,13 @@
                          file-content (if commit (g :cat-file page commit)
                                         (g :cat-file page))]
                      ((get-parser page) file-content)))
+  [:#download :tr.download-list] (let [file-list (page-file-list page)]
+                                   (en/clone-for [fl (into [] file-list)]
+                                                 [[:td (en/attr= :name "name")]] (en/content (:name fl))
+                                                 [[:td (en/attr= :name "size")]] (en/content (:size fl))
+                                                 [[:td (en/attr= :name "time")]] (en/content (:time fl))
+                                                 [[:a (en/attr= :name "download")]] (en/set-attr :href (:path fl) 
+                                                                                                 :target "_blank")))
   [:span#last_modified] (en/content 
                           (let [g (git DATA_DIR)
                                 ci (first (filter #(if commit (= (:name %) commit)
@@ -213,28 +230,36 @@
   ;; history
   (GET "/history" req (history nil :user (auth/user req)))
   (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
-  ;; static resources
-  (compojure.route/resources "/" {:root THEME}))
+  ;; download
+  (GET "/files/:page/:file" 
+       [page file :as req] 
+       (let [f (File. (str "./files/" page "/" file))]
+         {:status 200 
+          :header {"Content-Disposition" (str "attachment;filename=" file)} 
+          :body (if (.exists f) f "File not exists")
+          }))
+       ;; static resources
+       (compojure.route/resources "/" {:root THEME}))
 
-(defroutes protected-handler
-  ;; save
-  (POST "/page/:page" [page :as req] (save req page))
-  ;; edit
-  (GET "/edit/:page" [page :as req] (edit page :user (auth/user req)))
-  ;; attach
-  (GET "/attach/:page" [page :as req] (attach page :user (auth/user req)))
-  (wrap-multipart-params (POST "/attach/:page" [page :as req] (upload page req))))
+  (defroutes protected-handler
+    ;; save
+    (POST "/page/:page" [page :as req] (save req page))
+    ;; edit
+    (GET "/edit/:page" [page :as req] (edit page :user (auth/user req)))
+    ;; attach
+    (GET "/attach/:page" [page :as req] (attach page :user (auth/user req)))
+    (wrap-multipart-params (POST "/attach/:page" [page :as req] (upload page req))))
 
-(defroutes last-handler
-  ;; 404
-  (compojure.route/not-found "Not Found"))
+  (defroutes last-handler
+    ;; 404
+    (compojure.route/not-found "Not Found"))
 
-(defroutes handler
-  public-handler
-  (wrap-basic-authentication protected-handler authenticated?)
-  last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
+  (defroutes handler
+    public-handler
+    (wrap-basic-authentication protected-handler authenticated?)
+    last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
 
-;; the web app
-(def app
-  (-> handler
-      (compojure.handler/site)))
+  ;; the web app
+  (def app
+    (-> handler
+        (compojure.handler/site)))

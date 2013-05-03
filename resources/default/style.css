@@ -114,19 +114,19 @@ acronym, abbr {
 	margin-top: .5em;
 }
 
-#history {
+#history,#download {
 	margin-top: 20pt;
 	margin-bottom: 20pt;
 	text-align: center;
 }
 
-#history table {
+#history,#download table {
 	border-collapse: collapse;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-#history td {
+#history,#download td {
 	padding-left: 10pt;
 	padding-right: 10pt;
 	border-top: dashed thin gray;
@@ -140,7 +140,9 @@ acronym, abbr {
 #history td.page {
 	text-align: center;
 }
-
+#downlaod td{
+	text-align: center;
+}
 #pager {
 	font-size: 0.7em;
 	margin-top: .5em;
