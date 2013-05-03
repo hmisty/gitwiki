@@ -238,28 +238,28 @@
           :header {"Content-Disposition" (str "attachment;filename=" file)} 
           :body (if (.exists f) f "File not exists")
           }))
-       ;; static resources
-       (compojure.route/resources "/" {:root THEME}))
+  ;; static resources
+  (compojure.route/resources "/" {:root THEME}))
 
-  (defroutes protected-handler
-    ;; save
-    (POST "/page/:page" [page :as req] (save req page))
-    ;; edit
-    (GET "/edit/:page" [page :as req] (edit page :user (auth/user req)))
-    ;; attach
-    (GET "/attach/:page" [page :as req] (attach page :user (auth/user req)))
-    (wrap-multipart-params (POST "/attach/:page" [page :as req] (upload page req))))
+(defroutes protected-handler
+  ;; save
+  (POST "/page/:page" [page :as req] (save req page))
+  ;; edit
+  (GET "/edit/:page" [page :as req] (edit page :user (auth/user req)))
+  ;; attach
+  (GET "/attach/:page" [page :as req] (attach page :user (auth/user req)))
+  (wrap-multipart-params (POST "/attach/:page" [page :as req] (upload page req))))
 
-  (defroutes last-handler
-    ;; 404
-    (compojure.route/not-found "Not Found"))
+(defroutes last-handler
+  ;; 404
+  (compojure.route/not-found "Not Found"))
 
-  (defroutes handler
-    public-handler
-    (wrap-basic-authentication protected-handler authenticated?)
-    last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
+(defroutes handler
+  public-handler
+  (wrap-basic-authentication protected-handler authenticated?)
+  last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
 
-  ;; the web app
-  (def app
-    (-> handler
-        (compojure.handler/site)))
+;; the web app
+(def app
+  (-> handler
+      (compojure.handler/site)))
