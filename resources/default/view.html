@@ -1,6 +1,6 @@
 <!DOCTYPE html [
-	<!ENTITY rarr "&#8594;">
-	<!ENTITY raquo "&#187;">
+<!ENTITY rarr "&#8594;">
+<!ENTITY raquo "&#187;">
 ]>
 <html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
@@ -13,6 +13,7 @@
 		<div id="navigation">
 			<p><a class="home_url" href="__home_url__">Home</a> 
 			| <a class="global_history_url" href="__global_history_url__">History</a>
+			| <a class="local_attach_url" href="__local_attach_url__">Attach</a>
 			<!-- if __user_logged_in__ | Logged in as __user__ -->
 			<span class="username"></span>
 			</p>
@@ -26,6 +27,25 @@
 		<div id="content">
 			<!-- __content__ -->
 		</div>
+
+		<div id="download">
+			<h2>Attachments</h2>
+			<table>
+				<tr>
+					<th>Name</th>
+					<th>Size</th>
+					<th>Time</th>
+					<th></th>
+				</tr>
+				<tr class="download-list">
+					<td name="name"><!--file_name--></td>
+					<td name="size"><!--file-size--></td>
+					<td name="time"><!--file-upload-time--></td>
+					<td><a name="download" href="file-path">Download</a></td>
+				</tr>
+			</table>
+
+		</div>	
 
 		<div id="footer">
 			<p>
