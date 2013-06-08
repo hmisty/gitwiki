@@ -3,3 +3,4 @@ data
 files
 .lein-repl-history
 *~
+.DS_Store
