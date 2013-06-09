@@ -1,7 +1,8 @@
 #!/bin/bash
 JAVA=/usr/bin/java
 DIR=target
-JAR=$DIR/gitwiki-0.1.1-SNAPSHOT-standalone.jar 
+### create the symlink by yourself first.
+JAR=$DIR/gitwiki-standalone.jar 
 LOG=$DIR/gitwiki.log
 PID=$DIR/gitwiki.pid
 
