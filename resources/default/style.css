@@ -93,6 +93,12 @@ acronym, abbr {
 	border: thin dashed gray;
 }
 
+#comments {
+	width: 80%;
+	margin: 0em auto;
+	padding-top: 10pt;
+	padding-bottom: 10pt;
+}
 
 #footer {
 	text-align: center;

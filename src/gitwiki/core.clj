@@ -23,6 +23,7 @@
 (def DATA_DIR "data")
 (def UPLOAD_FILE_DIR "files")
 (def HISTORY_LIMIT 50)
+(def APPKEY "1495367953") ;; appkey for weibo. for testing only
 
 ;; helpers
 (defn authenticated? 
@@ -104,6 +105,7 @@
   (en/xml-resource (str THEME "/view.html"))
   [page & {commit :commit user :user}]
   [:title] (en/content [PROJECT " > " page])
+  [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY))
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
   [:a.local_attach_url] (en/set-attr :href (attach-url page))
@@ -118,6 +120,7 @@
                          file-content (if commit (g :cat-file page commit)
                                         (g :cat-file page))]
                      ((get-parser page) file-content)))
+  [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
   [:#download :tr.download-list] (let [file-list (page-file-list page)]
                                    (en/clone-for [fl (into [] file-list)]
                                                  [[:td (en/attr= :name "name")]] (en/content (:name fl))
