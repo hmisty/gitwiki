@@ -19,7 +19,7 @@
 ;; some configs
 (def PROJECT "GitWiki")
 (def DEFAULT_PAGE "Home")
-(def THEME "default")
+(def THEME "bootstrap")
 (def DATA_DIR "data")
 (def UPLOAD_FILE_DIR "files")
 (def HISTORY_LIMIT 50)
@@ -100,6 +100,15 @@
                               coll name-status))
                     '() log))))
 
+(defn git-content
+  [page commit]
+  (let [g (git DATA_DIR)
+        file-content (if commit (g :cat-file page commit)
+                       (g :cat-file page))
+        parse (get-parser page)]
+    (-> file-content parse en/html-snippet
+        (en/transform [:h1] (fn [x] (assoc (first (en/html [:div.page-header])) :content (list x)))))))
+
 ;; the pages
 (en/deftemplate view'
   (en/xml-resource (str THEME "/view.html"))
@@ -110,16 +119,11 @@
   [:a.global_history_url] (en/set-attr :href (history-url))
   [:a.local_attach_url] (en/set-attr :href (attach-url page))
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:h1#title] (en/content [page])
+  [:a#title] (en/content ["[ " page " ]"])
   [:a.edit_url] (en/set-attr :href (edit-url page))
-  [:span#edit_or_commit] (if commit (en/content commit)
-                           (en/append nil))
+  [:span#edit_or_commit] (if commit (en/content commit) (en/append nil))
   [:a.history_url] (en/set-attr :href (history-url page))
-  [:div#content] (en/html-content
-                   (let [g (git DATA_DIR)
-                         file-content (if commit (g :cat-file page commit)
-                                        (g :cat-file page))]
-                     ((get-parser page) file-content)))
+  [:div#content] (en/content (git-content page commit))
   [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
   [:#download :tr.download-list] (let [file-list (page-file-list page)]
                                    (en/clone-for [fl (into [] file-list)]

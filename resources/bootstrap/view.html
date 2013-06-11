@@ -1,0 +1,85 @@
+<!DOCTYPE html [
+<!ENTITY rarr "&#8594;">
+<!ENTITY raquo "&#187;">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>__title__ &raquo; __page__</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link href="/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen"/>
+		<link href="/style.css" rel="stylesheet"/>
+		<script src="/js/bootstrap.min.js"></script>
+		<script id="wbcomment" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=$APPKEY$" type="text/javascript" charset="utf-8"></script>
+		<base href="/page/" /><!-- for all internal page links -->
+	</head>
+	<body>
+		<div class="navbar navbar-inverse navbar-fixed-top">
+			<div class="navbar-inner">
+				<div class="container-fluid">
+					<button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="brand home_url" href="#">Evan Liu</a>
+					<div class="nav-collapse collapse">
+						<p class="nav navbar-text pull-right">
+						<span><a class="global_history_url" href="#">All History</a></span>
+						<span class="username"></span>
+						</p>
+						<ul class="nav">
+							<li class="active"><a id="title"></a></li>
+							<li><a class="edit_url" href="#">Edit</a></li> 
+							<li><a class="local_attach_url" href="#">Attach</a></li>
+							<li><a class="history_url" href="#">History</a></li>
+						</ul>
+					</div><!--/.nav-collapse -->
+				</div>
+			</div>
+		</div>
+
+		<div class="container">
+
+			<div id="content">
+				<!-- __content__ -->
+			</div>
+
+			<div id="comments">
+				<wb:comments url="auto" border="n" fontsize="14" width="auto" appkey="$APPKEY$" ></wb:comments>
+			</div>
+
+			<div id="download">
+				<h2>Attachments</h2>
+				<table>
+					<tr>
+						<th>Name</th>
+						<th>Size</th>
+						<th>Time</th>
+						<th></th>
+					</tr>
+					<tr class="download-list">
+						<td name="name"><!--file_name--></td>
+						<td name="size"><!--file-size--></td>
+						<td name="time"><!--file-upload-time--></td>
+						<td><a name="download" href="file-path">Download</a></td>
+					</tr>
+				</table>
+
+			</div>	
+
+		</div><!-- container -->
+
+		<div id="footer">
+			<p>
+			Last modified at <span id="last_modified"><!-- __datetime__ --></span> 
+			</p>
+			<div id="plug">
+				<p>
+				Powered by <a href="http://github.com/hmisty/gitwiki">GitWiki</a>
+				</p>
+			</div>
+		</div>
+	</body>
+</html>

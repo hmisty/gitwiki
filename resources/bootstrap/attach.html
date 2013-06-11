@@ -1,0 +1,48 @@
+<!DOCTYPE html [
+<!ENTITY rarr "&#8594;">
+<!ENTITY raquo "&#187;">
+]>
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+		<title>__title__ &raquo;Attach __page__</title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+		<link href="css/bootstrap.min.css" rel="stylesheet" media="screen"/>
+		<link href="style.css" rel="stylesheet"/>
+		<script src="js/bootstrap.min.js"></script>
+	</head>
+	<body>
+		<div id="navigation">
+			<p><a class="home_url" href="__home_url__">Home</a> 
+			| <a class="global_history_url" href="__global_history_url__">History</a>
+			<!-- if __user_logged_in__ | Logged in as __user__ -->
+			<span class="username"></span>  
+			</p>
+		</div>
+
+		<div id="header">
+			<h1 id="title"><!-- __Attach_page__ --></h1>
+		</div>
+
+		<div id="content">
+
+			<form action="__upload_url__" method="post" enctype="multipart/form-data">
+				<p></p>
+				<h1>Attach new file</h1>
+				<p>Please select the file you want to upload!</p>
+				<input type="file" class="upload" name="file" value="" size="20"/>
+				<h1>Comment</h1>
+				<p>Describe the file so other people know what it is.</p>
+				<input type="text" name="comment" value="" size="70"/> 
+				<p></p>
+				<input type="submit" name="submit" value="upload file"/>
+			</form>
+
+		</div>
+		<div id="plug">
+			<p>
+			Powered by <a href="http://github.com/hmisty/gitwiki">GitWiki</a>
+			</p>
+		</div>
+	</body>
+</html>
