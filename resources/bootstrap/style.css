@@ -1,3 +1,8 @@
+body {
+	position: relative;
+	padding-top: 40px;
+}
+
 #content, textarea { 
 	font: 100% "Trebuchet MS", Trebuchet, sans-serif; 
 }
@@ -15,35 +20,26 @@
 	color: #777;
 }
 
-#history,#download {
+#history, #attachment {
 	margin-top: 20pt;
 	margin-bottom: 20pt;
 	text-align: center;
 }
 
-#history,#download table {
+#history table, #attachment table {
 	border-collapse: collapse;
 	margin-left: auto;
 	margin-right: auto;
 }
 
-#history,#download td {
+#history td, #attachment td {
 	padding-left: 10pt;
 	padding-right: 10pt;
 	border-top: dashed thin gray;
 	border-bottom: dashed thin gray;
-}
-
-#history td.author {
 	text-align: center;
 }
 
-#history td.page {
-	text-align: center;
-}
-#downlaod td{
-	text-align: center;
-}
 #pager {
 	font-size: 0.7em;
 	margin-top: .5em;
@@ -51,13 +47,13 @@
 
 .sidebar-nav {
 	padding: 9px 0;
-		}
+}
 
-		@media (max-width: 980px) {
-			/* Enable use of floated navbar text */
-			.navbar-text.pull-right {
-				float: none;
-				padding-left: 5px;
-				padding-right: 5px;
-			}
-		}
+@media (max-width: 980px) {
+	/* Enable use of floated navbar text */
+	.navbar-text.pull-right {
+		float: none;
+		padding-left: 5px;
+		padding-right: 5px;
+}
+}

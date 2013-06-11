@@ -1,7 +1,4 @@
-<!DOCTYPE html [
-<!ENTITY rarr "&#8594;">
-<!ENTITY raquo "&#187;">
-]>
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
@@ -40,39 +37,12 @@
 			</div>
 		</div>
 
-		<div class="container">
-
-			<div id="content">
-				<!-- __content__ -->
-			</div>
-
-			<div id="comments">
-				<wb:comments url="auto" border="n" fontsize="14" width="auto" appkey="$APPKEY$" ></wb:comments>
-			</div>
-
-			<div id="download">
-				<h2>Attachments</h2>
-				<table>
-					<tr>
-						<th>Name</th>
-						<th>Size</th>
-						<th>Time</th>
-						<th></th>
-					</tr>
-					<tr class="download-list">
-						<td name="name"><!--file_name--></td>
-						<td name="size"><!--file-size--></td>
-						<td name="time"><!--file-upload-time--></td>
-						<td><a name="download" href="file-path">Download</a></td>
-					</tr>
-				</table>
-
-			</div>	
-
-		</div><!-- container -->
+		<div id="main" class="container">
+			<!-- main content goes here -->
+		</div>
 
 		<div id="footer">
-			<p>
+			<p id="last_modified_c">
 			Last modified at <span id="last_modified"><!-- __datetime__ --></span> 
 			</p>
 			<div id="plug">

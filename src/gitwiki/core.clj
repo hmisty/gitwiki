@@ -100,6 +100,7 @@
                               coll name-status))
                     '() log))))
 
+;; content renders
 (defn git-content
   [page commit]
   (let [g (git DATA_DIR)
@@ -109,9 +110,58 @@
     (-> file-content parse en/html-snippet
         (en/transform [:h1] (fn [x] (assoc (first (en/html [:div.page-header])) :content (list x)))))))
 
+(defn view-content
+  [page commit user]
+  (en/at
+    (en/html-resource (str THEME "/view.html"))
+    [:div#content] (en/content (git-content page commit))
+    [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
+    ))
+
+(defn edit-content
+  [page user]
+  (en/at
+    (en/html-resource (str THEME "/edit.html"))
+    [:form] (en/set-attr :action (page-url page))
+    [:textarea#content] (en/content (try (slurp (page-file page)) 
+                                      (catch FileNotFoundException e "")))))
+
+(defn history-content
+  [page user]
+  (en/at
+    (en/html-resource (str THEME "/history.html"))
+    [:#history :tr.commit]
+    (let [g (git DATA_DIR)
+          commits (if page (git-log-flatten (g :log page :limit HISTORY_LIMIT) page)
+                    (git-log-flatten (g :log :limit HISTORY_LIMIT)))]
+      (en/clone-for [ci commits]
+                    [[:td (en/attr= :name "date")]] (en/content (:date ci))
+                    [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
+                    [[:a (en/attr= :name "page")]]
+                    (comp
+                      (en/content (:file ci))
+                      (en/set-attr :href (page-url (:file ci))))
+                    [[:a (en/attr= :name "view")]] 
+                    (en/set-attr :href (page-url (:file ci) (:name ci)))))
+    [:#history_limit] (en/content [(str HISTORY_LIMIT)])))
+
+(defn attach-content
+  [page user]
+  (en/at
+    (en/html-resource (str THEME "/attach.html"))
+    [:#attachment :tr.attachment-list]
+    (let [file-list (page-file-list page)]
+      (en/clone-for [fl (into [] file-list)]
+                    [[:td (en/attr= :name "name")]] (en/content (:name fl))
+                    [[:td (en/attr= :name "size")]] (en/content (:size fl))
+                    [[:td (en/attr= :name "time")]] (en/content (:time fl))
+                    [[:a (en/attr= :name "link")]] (en/set-attr :href (:path fl) 
+                                                                    :target "_blank")))   
+    [:form] (en/set-attr :action (attach-url page))))
+
 ;; the pages
 (en/deftemplate view'
-  (en/xml-resource (str THEME "/view.html"))
+  (en/html-resource (str THEME "/template.html"))
   [page & {commit :commit user :user}]
   [:title] (en/content [PROJECT " > " page])
   [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY))
@@ -119,25 +169,19 @@
   [:a.global_history_url] (en/set-attr :href (history-url))
   [:a.local_attach_url] (en/set-attr :href (attach-url page))
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:a#title] (en/content ["[ " page " ]"])
-  [:a.edit_url] (en/set-attr :href (edit-url page))
-  [:span#edit_or_commit] (if commit (en/content commit) (en/append nil))
+  [:a#title] (en/content ["[ " page (if commit (str " | " commit)) " ]"])
+  [:a.edit_url] (if commit 
+                  (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link, a dirty hack
+                  (en/set-attr :href (edit-url page)))
   [:a.history_url] (en/set-attr :href (history-url page))
-  [:div#content] (en/content (git-content page commit))
-  [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
-  [:#download :tr.download-list] (let [file-list (page-file-list page)]
-                                   (en/clone-for [fl (into [] file-list)]
-                                                 [[:td (en/attr= :name "name")]] (en/content (:name fl))
-                                                 [[:td (en/attr= :name "size")]] (en/content (:size fl))
-                                                 [[:td (en/attr= :name "time")]] (en/content (:time fl))
-                                                 [[:a (en/attr= :name "download")]] (en/set-attr :href (:path fl) 
-                                                                                                 :target "_blank")))
   [:span#last_modified] (en/content 
                           (let [g (git DATA_DIR)
                                 ci (first (filter #(if commit (= (:name %) commit)
                                                      true) (g :log page)))
                                 date (:date ci)]
-                            date)))
+                            date))
+
+  [:div#main] (en/content (view-content page commit user)))
 
 (defn view
   [page & more]
@@ -146,49 +190,52 @@
     (resp/redirect (edit-url page))))
 
 (en/deftemplate edit
-  (en/xml-resource (str THEME "/edit.html"))
+  (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Editing " page])
+  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:span.username] (en/content ["| Logged in as " user])
-  [:h1#title] (en/content ["Editing " page])
-  [:form] (en/set-attr :action (page-url page))
-  [:textarea#content] (en/content (try (slurp (page-file page)) 
-                                    (catch FileNotFoundException e ""))))
+  [:a.local_attach_url] (en/content nil)
+  [:span.username] (en/content (if user ["| Logged in as " user]))
+  [:a#title] (en/content ["Editing [ " page " ]"])
+  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
+  [:a.history_url] (en/content nil)
+  [:p#last_modified_c] (en/content nil)
+
+  [:div#main] (en/content (edit-content page user)))
 
 (en/deftemplate history
-  (en/xml-resource (str THEME "/history.html"))
+  (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
-  [:title] (en/content [PROJECT " > History of " (or page "all")])
+  [:title] (en/content [PROJECT " > History of " (or page "*")])
+  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.local_attach_url] (en/content nil)
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:h1#title] (en/content ["History of " (or page "all")])
-  [:#history :tr.commit]
-  (let [g (git DATA_DIR)
-        commits (if page (git-log-flatten (g :log page :limit HISTORY_LIMIT) page)
-                  (git-log-flatten (g :log :limit HISTORY_LIMIT)))]
-    (en/clone-for [ci commits]
-                  [[:td (en/attr= :name "date")]] (en/content (:date ci))
-                  [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
-                  [[:a (en/attr= :name "page")]]
-                  (comp
-                    (en/content (:file ci))
-                    (en/set-attr :href (page-url (:file ci))))
-                  [[:a (en/attr= :name "view")]] 
-                  (en/set-attr :href (page-url (:file ci) (:name ci)))))
-  [:#history_limit] (en/content [(str HISTORY_LIMIT)]))
+  [:a#title] (en/content ["History of [" (or page "*") "]"])
+  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
+  [:a.history_url] (en/content nil)
+  [:p#last_modified_c] (en/content nil)
+
+  [:div#main] (en/content (history-content page user)))
 
 (en/deftemplate attach'
-  (en/xml-resource (str THEME "/attach.html"))
+  (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
-  [:title] (en/content [PROJECT " > Attach of " page])
+  [:title] (en/content [PROJECT " > Attachments of " page])
+  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.local_attach_url] (en/content nil)
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:h1#title] (en/content ["Attach of " page])
-  [:form] (en/set-attr :action (attach-url page)))
+  [:a#title] (en/content ["Attachments of [" page "]"])
+  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
+  [:a.history_url] (en/content nil)
+  [:p#last_modified_c] (en/content nil)
+
+  [:div#main] (en/content (attach-content page user)))
 
 (defn attach
   [page & more]
@@ -222,7 +269,7 @@
       (.mkdirs (File. filep)))
     (io/copy (io/file upfile) 
              (io/file filen)))
-  (resp/redirect (page-url page)))
+  (resp/redirect (attach-url page)))
 
 ;; the handlers
 (defroutes public-handler
