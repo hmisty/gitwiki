@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" xmlns:wb="http://open.weibo.com/wb">
+<html xmlns="http://www.w3.org/1999/xhtml">
 	<head>
 		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 		<title>__title__ &raquo; __page__</title>
@@ -7,8 +7,6 @@
 		<link href="/css/bootstrap.min.css" rel="stylesheet" media="screen"/>
 		<link href="/css/bootstrap-responsive.min.css" rel="stylesheet" media="screen"/>
 		<link href="/style.css" rel="stylesheet"/>
-		<script src="/js/bootstrap.min.js"></script>
-		<script id="wbcomment" src="http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=$APPKEY$" type="text/javascript" charset="utf-8"></script>
 		<base href="/page/" /><!-- for all internal page links -->
 	</head>
 	<body>
@@ -27,10 +25,12 @@
 						<span class="username"></span>
 						</p>
 						<ul class="nav">
-							<li class="active"><a id="title"></a></li>
-							<li><a class="edit_url" href="#">Edit</a></li> 
-							<li><a class="local_attach_url" href="#">Attach</a></li>
-							<li><a class="history_url" href="#">History</a></li>
+							<li class="nav_page"><a></a></li>
+							<li class="nav_commit" hidden="true"><a></a></li>
+							<li class="nav_comment"><a>Comment</a></li> 
+							<li class="nav_edit"><a>Edit</a></li> 
+							<li class="nav_attach"><a>Attach</a></li>
+							<li class="nav_history"><a>History</a></li>
 						</ul>
 					</div><!--/.nav-collapse -->
 				</div>
@@ -42,8 +42,8 @@
 		</div>
 
 		<div id="footer">
-			<p id="last_modified_c">
-			Last modified at <span id="last_modified"><!-- __datetime__ --></span> 
+			<p id="last_modified">
+			Last modified at <span><!-- __datetime__ --></span> 
 			</p>
 			<div id="plug">
 				<p>

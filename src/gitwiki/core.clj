@@ -36,6 +36,11 @@
   ([page] `(str "/page/" ~page))
   ([page commit] `(str "/page/" ~page "/" ~commit)))
 
+(defmacro comment-url
+  "Returns the URL to comment the page."
+  [page]
+  `(str "/comment/" ~page))
+
 (defmacro edit-url
   "Returns the URL to edit the page."
   [page]
@@ -115,13 +120,21 @@
   (en/at
     (en/html-resource (str THEME "/view.html"))
     [:div#content] (en/content (git-content page commit))
+    [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))))
+
+(defn comment-content
+  [page user]
+  (en/at
+    (en/html-resource (str THEME "/comment.html"))
+    [:h2#title] (en/content ["Comments of " page])
     [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
-    ))
+    [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY))))
 
 (defn edit-content
   [page user]
   (en/at
     (en/html-resource (str THEME "/edit.html"))
+    [:h2#title :> :span] (en/content page)
     [:form] (en/set-attr :action (page-url page))
     [:textarea#content] (en/content (try (slurp (page-file page)) 
                                       (catch FileNotFoundException e "")))))
@@ -164,17 +177,27 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {commit :commit user :user}]
   [:title] (en/content [PROJECT " > " page])
-  [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY))
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:a.local_attach_url] (en/set-attr :href (attach-url page))
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:a#title] (en/content ["[ " page (if commit (str " | " commit)) " ]"])
-  [:a.edit_url] (if commit 
-                  (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link, a dirty hack
-                  (en/set-attr :href (edit-url page)))
-  [:a.history_url] (en/set-attr :href (history-url page))
-  [:span#last_modified] (en/content 
+
+  ;; the menu
+  [:li.nav_page] (if commit identity (en/add-class "active"))
+  [:li.nav_commit] (if commit (comp (en/add-class "active") 
+                                    (en/remove-attr :hidden)) nil)
+  [:li.nav_edit] (if commit nil identity)
+  [:li.nav_comment] (if commit nil identity)
+  [:li.nav_attach] (if commit nil identity)
+
+  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_commit :> :a] (en/content ["[ " page (if commit (str " | " commit)) " ]"])
+  [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
+  [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
+  [:li.nav_attach :> :a] (en/set-attr :href (attach-url page))
+  [:li.nav_history :> :a] (en/set-attr :href (history-url page))
+  ;; menu end
+
+  [:#last_modified :> :span] (en/content 
                           (let [g (git DATA_DIR)
                                 ci (first (filter #(if commit (= (:name %) commit)
                                                      true) (g :log page)))
@@ -189,19 +212,49 @@
     (apply (partial view' page) more)
     (resp/redirect (edit-url page))))
 
+(en/deftemplate comments
+  (en/html-resource (str THEME "/template.html"))
+  [page & {user :user}]
+  [:html] (en/set-attr :xmlns:wb "http://open.weibo.com/wb")
+  ;;[:head] (en/append (en/html [:script {:src (string/replace "http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=$APPKEY$" "$APPKEY$" APPKEY)}]))
+  [:title] (en/content [PROJECT " > Comments of " page])
+  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
+  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:span.username] (en/content (if user ["| Logged in as " user]))
+
+  ;; the menu
+  [:li.nav_edit] nil
+  [:li.nav_comment] (en/add-class "active")
+  [:li.nav_attach] nil
+
+  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_comment :> :a] (en/content ["[ Comment | " page " ]"])
+  [:li.nav_history :> :a] (en/set-attr :href (history-url page))
+  ;; menu end
+
+  [:p#last_modified] nil
+
+  [:div#main] (en/content (comment-content page user)))
+
 (en/deftemplate edit
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Editing " page])
-  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:a.local_attach_url] (en/content nil)
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:a#title] (en/content ["Editing [ " page " ]"])
-  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
-  [:a.history_url] (en/content nil)
-  [:p#last_modified_c] (en/content nil)
+
+  ;; the menu
+  [:li.nav_edit] (en/add-class "active")
+
+  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_edit :> :a] (en/content ["[ Edit | " page " ]"])
+  [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
+  [:li.nav_attach :> :a] (en/set-attr :href (attach-url page))
+  [:li.nav_history :> :a] (en/set-attr :href (history-url page))
+  ;; menu end
+  
+  [:p#last_modified] nil
 
   [:div#main] (en/content (edit-content page user)))
 
@@ -209,15 +262,21 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > History of " (or page "*")])
-  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:a.local_attach_url] (en/content nil)
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:a#title] (en/content ["History of [" (or page "*") "]"])
-  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
-  [:a.history_url] (en/content nil)
-  [:p#last_modified_c] (en/content nil)
+
+  ;; the menu
+  [:li.nav_history] (en/add-class "active")
+
+  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
+  [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
+  [:li.nav_attach :> :a] (en/set-attr :href (attach-url page))
+  [:li.nav_history :> :a] (en/content ["[ History | " page " ]"])
+  ;; menu end
+
+  [:p#last_modified] (en/content nil)
 
   [:div#main] (en/content (history-content page user)))
 
@@ -225,15 +284,21 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Attachments of " page])
-  [:script#wbcomment] (en/content nil)
   [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
   [:a.global_history_url] (en/set-attr :href (history-url))
-  [:a.local_attach_url] (en/content nil)
   [:span.username] (en/content (if user ["| Logged in as " user]))
-  [:a#title] (en/content ["Attachments of [" page "]"])
-  [:a.edit_url] (comp (en/content page) (en/set-attr :href (page-url page))) ;; use it for page link
-  [:a.history_url] (en/content nil)
-  [:p#last_modified_c] (en/content nil)
+
+  ;; the menu
+  [:li.nav_attach] (en/add-class "active")
+
+  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
+  [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
+  [:li.nav_attach :> :a] (en/content ["[ Attach | " page " ]"])
+  [:li.nav_history :> :a] (en/set-attr :href (history-url page))
+  ;; menu end
+
+  [:p#last_modified] (en/content nil)
 
   [:div#main] (en/content (attach-content page user)))
 
@@ -280,11 +345,9 @@
   (GET "/page/:page/:commit" [page commit :as req] 
        (view page :commit commit :user (auth/user req)))
   (GET "/page/:page" [page :as req] (view page :user (auth/user req)))
-  (GET "/page/:page" [page :as req] (view page :user (auth/user req)))
-  ;; history
-  (GET "/history" req (history nil :user (auth/user req)))
-  (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
-  ;; download
+  ;; comment
+  (GET "/comment/:page" [page :as req] (comments page :user (auth/user req)))
+  ;; attachments
   (GET "/files/:page/:file" 
        [page file :as req] 
        (let [f (File. (str "./files/" page "/" file))]
@@ -296,6 +359,9 @@
   (compojure.route/resources "/" {:root THEME}))
 
 (defroutes protected-handler
+  ;; history
+  (GET "/history" req (history nil :user (auth/user req)))
+  (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
   ;; save
   (POST "/page/:page" [page :as req] (save req page))
   ;; edit
