@@ -3,8 +3,17 @@ body {
 	padding-top: 40px;
 }
 
+h2 {
+	border-bottom: 1px solid #eee;
+}
+
+#content {
+	margin-top: 20px;
+}
+
 #content, textarea { 
-	font: 100% "Trebuchet MS", Trebuchet, sans-serif; 
+	font-size: 15px;
+	line-height: 1.7;
 }
 
 #footer {
@@ -57,3 +66,4 @@ body {
 		padding-right: 5px;
 }
 }
+

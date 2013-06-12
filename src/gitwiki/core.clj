@@ -113,14 +113,13 @@
                        (g :cat-file page))
         parse (get-parser page)]
     (-> file-content parse en/html-snippet
-        (en/transform [:h1] (fn [x] (assoc (first (en/html [:div.page-header])) :content (list x)))))))
+        #_(en/transform [:h1] (fn [x] (assoc (first (en/html [:div.page-header])) :content (list x)))))))
 
 (defn view-content
   [page commit user]
   (en/at
     (en/html-resource (str THEME "/view.html"))
-    [:div#content] (en/content (git-content page commit))
-    [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))))
+    [:div#content] (en/content (git-content page commit))))
 
 (defn comment-content
   [page user]
