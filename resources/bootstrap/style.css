@@ -2,13 +2,13 @@ body {
 	position: relative;
 	padding-top: 40px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-	font-size: 14pt;
+	font-size: 12pt;
 	font-weight: 200;
 }
 
 #main, textarea {
 	margin-top: 20px;
-	font-size: 20pt;
+	font-size: 16pt;
 	line-height: 1.7;
 }
 
@@ -19,17 +19,16 @@ body {
 
 #main h1 {
 	color: #5a5a5a;
-	padding-bottom: 5px;
-	margin: 40px 0 20px;
+	margin: 20px 0 10px;
 	border-bottom: 1px solid #eeeeee;
 }
 
 #main h2 {
-	margin: 20px 0 10px;
+	margin: 10px 0 5px;
 }
 
 #main p {
-	margin: 20pt 0 20pt;
+	line-height: 2;
 }
 
 #main ul li {
@@ -41,17 +40,14 @@ body {
 	color: #555;
 }
 
-#main a {
-	color: #268BD2;
-	text-decoration: none;
-	border-bottom: 1px solid #dddddd;
+#update {
+	font-size: 12pt;
 }
 
-#main a:hover {
-	text-decoration: none;
-	transition: background-color .2s;
-	background-color: yellow;
+#update h2 {
+	font-size: 16pt;
 }
+
 
 #footer {
 	text-align: center;
