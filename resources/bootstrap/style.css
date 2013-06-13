@@ -2,37 +2,35 @@ body {
 	position: relative;
 	padding-top: 40px;
 	font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+	font-size: 14pt;
 	font-weight: 200;
 }
 
-#main {
+#main, textarea {
 	margin-top: 20px;
-	width: 75%;
-}
-
-#main { 
-	font-size: 12pt;
+	font-size: 20pt;
 	line-height: 1.7;
 }
 
 #main h1, h2, h3, h4, h5, h6 {
-	font-weight: normal;
+	font-weight: 400;
 	line-height: 1.7;
 }
 
 #main h1 {
 	color: #5a5a5a;
 	padding-bottom: 5px;
-	margin: 20px 0 10px;
+	margin: 40px 0 20px;
 	border-bottom: 1px solid #eeeeee;
 }
 
-#main h1 { font-size: 18pt; }
-#main h2 { font-size: 15pt; }
-#main h3 { font-size: 13pt; }
-#main h4 { font-size: 11pt; }
-#main h5 { font-size: 10pt; }
-#main h6 { font-size: 9pt; }
+#main h2 {
+	margin: 20px 0 10px;
+}
+
+#main p {
+	margin: 20pt 0 20pt;
+}
 
 #main ul li {
 	list-style-type: circle;
