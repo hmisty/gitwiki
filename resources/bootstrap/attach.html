@@ -1,27 +1,29 @@
-<div id="attachment">
-	<h2>Attachments</h2>
-	<table>
-		<tr>
-			<th>Name</th>
-			<th>Size</th>
-			<th>Time</th>
-			<th></th>
-		</tr>
-		<tr class="attachment-list">
-			<td name="name"><!--file_name--></td>
-			<td name="size"><!--file-size--></td>
-			<td name="time"><!--file-upload-time--></td>
-			<td><a name="link" href="file-path">Link</a></td>
-		</tr>
-	</table>
+<div id="content">
+	<div id="attachment">
+		<h2>Attachments</h2>
+		<table>
+			<tr>
+				<th>Name</th>
+				<th>Size</th>
+				<th>Time</th>
+				<th></th>
+			</tr>
+			<tr class="attachment-list">
+				<td name="name"><!--file_name--></td>
+				<td name="size"><!--file-size--></td>
+				<td name="time"><!--file-upload-time--></td>
+				<td><a name="link" href="file-path">Link</a></td>
+			</tr>
+		</table>
 
-	<p>&nbsp;</p>
+		<p>&nbsp;</p>
 
-	<h2>Attach new file</h2>
-	<form action="__upload_url__" method="post" enctype="multipart/form-data">
-		<p>Please choose the file you want to upload:</p>
-		<input class="btn" type="file" class="upload" name="file" value="" size="20"/>
-		<input class="btn" type="submit" name="submit" value="upload file"/>
-	</form>
+		<h2>Attach new file</h2>
+		<form action="__upload_url__" method="post" enctype="multipart/form-data">
+			<p>Please choose the file you want to upload:</p>
+			<input class="btn" type="file" class="upload" name="file" value="" size="20"/>
+			<input class="btn" type="submit" name="submit" value="upload file"/>
+		</form>
 
-</div>	
+	</div>	
+</div>

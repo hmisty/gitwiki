@@ -17,6 +17,7 @@
             [gitwiki.markdown :as markdown]
             [gitwiki.auth :as auth]))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; some default configs
 (def default_cfg 
   {:project "GitWiki"
@@ -42,8 +43,9 @@
 (def DATA_DIR (:data_dir cfg))
 (def UPLOAD_FILE_DIR (:attachment_dir cfg))
 (def HISTORY_LIMIT (:history_limit cfg))
-(def APPKEY (:appkey_weibo cfg)) 
+(def APPKEY (str (:appkey_weibo cfg))) 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; helpers
 (defn authenticated? 
   "Returns the logged in username if authenticated."
@@ -124,6 +126,7 @@
                               coll name-status))
                     '() log))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; content renders
 (defn git-content
   [page commit]
@@ -134,69 +137,69 @@
     (-> file-content parse en/html-snippet
         #_(en/transform [:h1] (fn [x] (assoc (first (en/html [:div.page-header])) :content (list x)))))))
 
-(defn view-content
+(en/defsnippet view-content
+  (str THEME "/view.html")
+  [[:div#content]]
   [page commit user]
-  (en/at
-    (en/html-resource (str THEME "/view.html"))
-    [:div#content] (en/content (git-content page commit))))
+  [:div#article] (en/content (git-content page commit)))
 
-(defn comment-content
+(en/defsnippet comment-content
+  (str THEME "/comment.html")
+  [[:div#content]]
   [page user]
-  (en/at
-    (en/html-resource (str THEME "/comment.html"))
-    [:h2#title] (en/content ["Comments of " page])
-    [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
-    [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY))))
+  [:h2#title] (en/content ["Comments of " page])
+  [:wb:comments]  (fn [x] (update-in x [:attrs :appkey] string/replace "$APPKEY$" APPKEY))
+  [:script#wbcomment] (fn [x] (update-in x [:attrs :src] string/replace "$APPKEY$" APPKEY)))
 
-(defn edit-content
+(en/defsnippet edit-content
+  (str THEME "/edit.html")
+  [[:div#content]]
   [page user]
-  (en/at
-    (en/html-resource (str THEME "/edit.html"))
-    [:h2#title :> :span] (en/content page)
-    [:form] (en/set-attr :action (page-url page))
-    [:textarea#content] (en/content (try (slurp (page-file page)) 
-                                      (catch FileNotFoundException e "")))))
+  [:h2#title :> :span] (en/content page)
+  [:form] (en/set-attr :action (page-url page))
+  [:textarea#content] (en/content (try (slurp (page-file page)) 
+                                    (catch FileNotFoundException e ""))))
 
-(defn history-content
+(en/defsnippet history-content
+  (str THEME "/history.html")
+  [[:div#content]]
   [page user]
-  (en/at
-    (en/html-resource (str THEME "/history.html"))
-    [:#history :tr.commit]
-    (let [g (git DATA_DIR)
-          commits (if page (git-log-flatten (g :log page :limit HISTORY_LIMIT) page)
-                    (git-log-flatten (g :log :limit HISTORY_LIMIT)))]
-      (en/clone-for [ci commits]
-                    [[:td (en/attr= :name "date")]] (en/content (:date ci))
-                    [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
-                    [[:a (en/attr= :name "page")]]
-                    (comp
-                      (en/content (:file ci))
-                      (en/set-attr :href (page-url (:file ci))))
-                    [[:a (en/attr= :name "view")]] 
-                    (en/set-attr :href (page-url (:file ci) (:name ci)))))
-    [:#history_limit] (en/content [(str HISTORY_LIMIT)])))
+  [:#history :tr.commit]
+  (let [g (git DATA_DIR)
+        commits (if page (git-log-flatten (g :log page :limit HISTORY_LIMIT) page)
+                  (git-log-flatten (g :log :limit HISTORY_LIMIT)))]
+    (en/clone-for [ci commits]
+                  [[:td (en/attr= :name "date")]] (en/content (:date ci))
+                  [[:td (en/attr= :name "author")]] (en/content (:author-name ci))
+                  [[:a (en/attr= :name "page")]]
+                  (comp
+                    (en/content (:file ci))
+                    (en/set-attr :href (page-url (:file ci))))
+                  [[:a (en/attr= :name "view")]] 
+                  (en/set-attr :href (page-url (:file ci) (:name ci)))))
+  [:#history_limit] (en/content [(str HISTORY_LIMIT)]))
 
-(defn attach-content
+(en/defsnippet attach-content
+  (str THEME "/attach.html")
+  [[:div#content]]
   [page user]
-  (en/at
-    (en/html-resource (str THEME "/attach.html"))
-    [:#attachment :tr.attachment-list]
-    (let [file-list (page-file-list page)]
-      (en/clone-for [fl (into [] file-list)]
-                    [[:td (en/attr= :name "name")]] (en/content (:name fl))
-                    [[:td (en/attr= :name "size")]] (en/content (:size fl))
-                    [[:td (en/attr= :name "time")]] (en/content (:time fl))
-                    [[:a (en/attr= :name "link")]] (en/set-attr :href (:path fl) 
-                                                                    :target "_blank")))   
-    [:form] (en/set-attr :action (attach-url page))))
+  [:#attachment :tr.attachment-list]
+  (let [file-list (page-file-list page)]
+    (en/clone-for [fl (into [] file-list)]
+                  [[:td (en/attr= :name "name")]] (en/content (:name fl))
+                  [[:td (en/attr= :name "size")]] (en/content (:size fl))
+                  [[:td (en/attr= :name "time")]] (en/content (:time fl))
+                  [[:a (en/attr= :name "link")]] (en/set-attr :href (:path fl) 
+                                                              :target "_blank")))   
+  [:form] (en/set-attr :action (attach-url page)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the pages
 (en/deftemplate view'
   (en/html-resource (str THEME "/template.html"))
   [page & {commit :commit user :user}]
   [:title] (en/content [PROJECT " > " page])
-  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.brand] (en/content PROJECT)
   [:span.username] (en/content (if user ["| Logged in as " user]))
 
   ;; the menu
@@ -234,10 +237,8 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:html] (en/set-attr :xmlns:wb "http://open.weibo.com/wb")
-  ;;[:head] (en/append (en/html [:script {:src (string/replace "http://tjs.sjs.sinajs.cn/open/api/js/wb.js?appkey=$APPKEY$" "$APPKEY$" APPKEY)}]))
   [:title] (en/content [PROJECT " > Comments of " page])
-  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.brand] (en/content PROJECT)
   [:span.username] (en/content (if user ["| Logged in as " user]))
 
   ;; the menu
@@ -258,8 +259,7 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Editing " page])
-  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.brand] (en/content PROJECT)
   [:span.username] (en/content (if user ["| Logged in as " user]))
 
   ;; the menu
@@ -279,19 +279,19 @@
 (en/deftemplate history
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
-  [:title] (en/content [PROJECT " > History of " (or page "*")])
-  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:title] (en/content [PROJECT " > History of " (or page "all")])
+  [:a.brand] (en/content PROJECT)
   [:span.username] (en/content (if user ["| Logged in as " user]))
 
   ;; the menu
   [:li.nav_history] (en/add-class "active")
 
-  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_page :> :a] (comp (en/content (or page "Home")) 
+                             (en/set-attr :href (page-url (or page "Home"))))
   [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
   [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
   [:li.nav_attach :> :a] (en/set-attr :href (attach-url page))
-  [:li.nav_history :> :a] (en/content ["[ History | " page " ]"])
+  [:li.nav_history :> :a] (en/content ["[ History | " (or page "all") " ]"])
   ;; menu end
 
   [:p#last_modified] (en/content nil)
@@ -302,8 +302,7 @@
   (en/html-resource (str THEME "/template.html"))
   [page & {user :user}]
   [:title] (en/content [PROJECT " > Attachments of " page])
-  [:a.home_url] (en/set-attr :href (page-url DEFAULT_PAGE))
-  [:a.global_history_url] (en/set-attr :href (history-url))
+  [:a.brand] (en/content PROJECT)
   [:span.username] (en/content (if user ["| Logged in as " user]))
 
   ;; the menu
@@ -326,6 +325,7 @@
     (apply (partial attach' page) more)
     (resp/redirect (edit-url page))))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the action
 (defn save
   [req page]
@@ -354,6 +354,7 @@
              (io/file filen)))
   (resp/redirect (attach-url page)))
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the handlers
 (defroutes public-handler
   ;; for debugging
@@ -397,6 +398,7 @@
   (wrap-basic-authentication protected-handler authenticated?)
   last-handler) ;; in fact all handler after wrap-basic-authentication will be protected...
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; the web app
 (def app
   (-> handler
