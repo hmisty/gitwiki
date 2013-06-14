@@ -28,7 +28,8 @@ body {
 }
 
 #main p {
-	line-height: 2;
+	margin-top: 15px;
+	margin-bottom: 5px;
 }
 
 #main ul li {
