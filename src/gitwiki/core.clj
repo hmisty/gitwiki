@@ -288,9 +288,9 @@
 
   [:li.nav_page :> :a] (comp (en/content (or page "Home")) 
                              (en/set-attr :href (page-url (or page "Home"))))
-  [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
-  [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
-  [:li.nav_attach :> :a] (en/set-attr :href (attach-url page))
+  [:li.nav_edit :> :a] nil
+  [:li.nav_comment :> :a] nil
+  [:li.nav_attach :> :a] nil
   [:li.nav_history :> :a] (en/content ["[ History | " (or page "all") " ]"])
   ;; menu end
 
