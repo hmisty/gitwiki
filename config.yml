@@ -1,0 +1,7 @@
+project: GitWiki
+homepage: Home
+theme: bootstrap
+data_dir: data
+attachment_dir: files
+history_limit: 50
+appkey_weibo: 1495367953

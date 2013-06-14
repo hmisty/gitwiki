@@ -1,4 +1,4 @@
-(defproject gitwiki "0.4.0"
+(defproject gitwiki "0.4.1"
   :description "gitwiki: a simple, light and easy to use wiki with git backend"
   :url "http://github.com/hmisty/gitwiki"
   :license {:name "Eclipse Public License"
@@ -14,6 +14,7 @@
                  #_[org.fusesource.wikitext/textile-core "1.4"]
                  [org.eclipse.jgit/org.eclipse.jgit.pgm "2.3.1.201302201838-r"]
                  [markdown-clj "0.9.20"]
+                 [clj-yaml "0.4.0"]
                  [org.clojure/clojure-contrib "1.2.0"]]
   :repositories {"local-repos" "file:repos"}
   :main gitwiki.server 

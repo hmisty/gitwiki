@@ -12,18 +12,37 @@
             [compojure.handler]
             [compojure.route]
             [clojure.java.io :as io]
+            [clj-yaml.core :as yaml]
             [gitwiki.textile :as textile]
             [gitwiki.markdown :as markdown]
             [gitwiki.auth :as auth]))
 
-;; some configs
-(def PROJECT "GitWiki")
-(def DEFAULT_PAGE "Home")
-(def THEME "bootstrap")
-(def DATA_DIR "data")
-(def UPLOAD_FILE_DIR "files")
-(def HISTORY_LIMIT 50)
-(def APPKEY "1495367953") ;; appkey for weibo. for testing only
+;; some default configs
+(def default_cfg 
+  {:project "GitWiki"
+   :homepage "Home"
+   :theme "bootstrap"
+   :data_dir "data"
+   :attachment_dir "files"
+   :history_limit 50
+   :appkey_weibo 1495367953 ;; appkey for weibo. for testing only 
+   })
+
+(def CONFIG_FILE "config.yml")
+
+;; override configs reading from config.yml, if exists
+(def cfg 
+  (merge default_cfg
+         (try (yaml/parse-string (slurp CONFIG_FILE)) (catch FileNotFoundException e {}))))
+
+;; push them into vars
+(def PROJECT (:project cfg))
+(def DEFAULT_PAGE (:homepage cfg))
+(def THEME (:theme cfg))
+(def DATA_DIR (:data_dir cfg))
+(def UPLOAD_FILE_DIR (:attachment_dir cfg))
+(def HISTORY_LIMIT (:history_limit cfg))
+(def APPKEY (:appkey_weibo cfg)) 
 
 ;; helpers
 (defn authenticated? 
