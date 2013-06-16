@@ -1,12 +1,12 @@
-(defproject gitwiki "0.4.2"
+(defproject gitwiki "0.5.0"
   :description "gitwiki: a simple, light and easy to use wiki with git backend"
   :url "http://github.com/hmisty/gitwiki"
   :license {:name "Eclipse Public License"
             :url "http://www.eclipse.org/legal/epl-v10.html"}
   :dependencies [[org.clojure/clojure "1.5.1"]
-                 [ring "1.0.1"]
+                 [ring "1.1.8"]
                  [ring-basic-authentication "1.0.2"]
-                 [compojure "1.0.1"]
+                 [compojure "1.1.5"]
                  [enlive "1.1.1"]
                  [local/wikitext-core "1.8.0"]
                  [local/wikitext-textile-core "1.8.0"]
