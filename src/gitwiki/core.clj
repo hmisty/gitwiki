@@ -72,8 +72,12 @@
   ([page] `(str "/" ~page "/history")))
 
 (defmacro attach-url
-  "Return the URL to attach file"
+  "Returns the URL to attach file"
   ([page] `(str "/" ~page "/_attach")))
+
+(defmacro attachment-url
+  "Returns the URL to the attached file"
+  ([page file] `(str "/" ~page "/file/" ~file)))
 
 (defmacro page-file
   "Returns the file path for the wiki page."
@@ -98,13 +102,13 @@
   [file]
   (.format (java.text.SimpleDateFormat. "yyyy-MM-dd HH:mm:ss") (java.util.Date. (.lastModified (io/file file)))))
 
-(defn page-file-list
+(defn page-attachment-list
   "Returns the file list information of the specified page"
   [page]
   (map (fn [f] {:name (.getName f) 
                 :size (str (.length f) "B") 
                 :time (file-modified-time f) 
-                :path (str "/files/" page "/" (.getName f))})
+                :path (attachment-url page (.getName f))})
        (filter #(.isFile %)
                (.listFiles (File. (upload-file page))))))
 
@@ -123,6 +127,14 @@
                                         :change-type (second %2)}) 
                               coll name-status))
                     '() log))))
+
+(defn post-process
+  [page snippet]
+  (let [f (fn [attr x] (update-in x [:attrs attr] string/replace "%FILE%" (str "/" page "/file")))]
+    (en/at snippet
+           [:a] (partial f :href)
+           [:img] (partial f :src) 
+           )))
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ;; content renders
@@ -182,7 +194,7 @@
   [[:div#content]]
   [page user]
   [:#attachment :tr.attachment-list]
-  (let [file-list (page-file-list page)]
+  (let [file-list (page-attachment-list page)]
     (en/clone-for [fl (into [] file-list)]
                   [[:td (en/attr= :name "name")]] (en/content (:name fl))
                   [[:td (en/attr= :name "size")]] (en/content (:size fl))
@@ -208,7 +220,7 @@
   [:li.nav_comment] (if commit nil identity)
   [:li.nav_attach] (if commit nil identity)
 
-  [:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  ;;[:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
   [:li.nav_commit :> :a] (en/content ["[ " page (if commit (str " | " commit)) " ]"])
   [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
   [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
@@ -223,7 +235,7 @@
                                 date (:date ci)]
                             date))
 
-  [:div#main] (en/content (view-content page commit user)))
+  [:div#main] (en/content (post-process page (view-content page commit user))))
 
 (defn view
   [page & more]
