@@ -54,28 +54,26 @@
 
 (defmacro page-url
   "Returns the URL to view the page."
-  ([page] `(str "/page/" ~page))
-  ([page commit] `(str "/page/" ~page "/" ~commit)))
+  ([page] `(str "/" ~page))
+  ([page commit] `(str "/" ~page "/_rev/" ~commit)))
 
 (defmacro comment-url
   "Returns the URL to comment the page."
   [page]
-  `(str "/comment/" ~page))
+  `(str "/" ~page "/comment"))
 
 (defmacro edit-url
   "Returns the URL to edit the page."
   [page]
-  `(str "/edit/" ~page))
+  `(str "/" ~page "/_edit"))
 
 (defmacro history-url
   "Returns the URL to the history of the page."
-  ([] `(str "/history"))
-  ([page] `(str "/history/" ~page)))
+  ([page] `(str "/" ~page "/history")))
 
 (defmacro attach-url
   "Return the URL to attach file"
-  ([] `(str "/attach"))
-  ([page] `(str "/attach/" ~page)))
+  ([page] `(str "/" ~page "/_attach")))
 
 (defmacro page-file
   "Returns the file path for the wiki page."
@@ -361,13 +359,13 @@
   #_(GET "*" req {:status 200 :body (with-out-str (pprint req))})
   ;; view
   (GET "/" req (view DEFAULT_PAGE :user (auth/user req)))
-  (GET "/page/:page/:commit" [page commit :as req] 
+  (GET "/:page/_rev/:commit" [page commit :as req] 
        (view page :commit commit :user (auth/user req)))
-  (GET "/page/:page" [page :as req] (view page :user (auth/user req)))
+  (GET "/:page" [page :as req] (view page :user (auth/user req)))
   ;; comment
-  (GET "/comment/:page" [page :as req] (comments page :user (auth/user req)))
+  (GET "/:page/comment" [page :as req] (comments page :user (auth/user req)))
   ;; attachments
-  (GET "/files/:page/:file" 
+  (GET "/:page/file/:file" 
        [page file :as req] 
        (let [f (File. (str "./files/" page "/" file))]
          {:status 200 
@@ -379,15 +377,15 @@
 
 (defroutes protected-handler
   ;; history
-  (GET "/history" req (history nil :user (auth/user req)))
-  (GET "/history/:page" [page :as req] (history page :user (auth/user req)))
+  (GET "/_/history" req (history nil :user (auth/user req)))
+  (GET "/:page/history" [page :as req] (history page :user (auth/user req)))
   ;; save
-  (POST "/page/:page" [page :as req] (save req page))
+  (POST "/:page" [page :as req] (save req page))
   ;; edit
-  (GET "/edit/:page" [page :as req] (edit page :user (auth/user req)))
+  (GET "/:page/_edit" [page :as req] (edit page :user (auth/user req)))
   ;; attach
-  (GET "/attach/:page" [page :as req] (attach page :user (auth/user req)))
-  (wrap-multipart-params (POST "/attach/:page" [page :as req] (upload page req))))
+  (GET "/:page/_attach" [page :as req] (attach page :user (auth/user req)))
+  (wrap-multipart-params (POST "/:page/_attach" [page :as req] (upload page req))))
 
 (defroutes last-handler
   ;; 404

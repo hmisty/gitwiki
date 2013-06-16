@@ -17,6 +17,10 @@ If you already have lein in your PATH:
 
 	lein run
 
+Or, in development mode:
+
+	lein ring server-headless 8083
+
 If you don't have lein:
 
 	curl -O https://raw.github.com/technomancy/leiningen/stable/bin/lein
