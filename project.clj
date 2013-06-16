@@ -1,4 +1,4 @@
-(defproject gitwiki "0.5.1"
+(defproject gitwiki "0.5.2"
   :description "gitwiki: a simple, light and easy to use wiki with git backend"
   :url "http://github.com/hmisty/gitwiki"
   :license {:name "Eclipse Public License"

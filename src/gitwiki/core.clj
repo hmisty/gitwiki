@@ -220,7 +220,7 @@
   [:li.nav_comment] (if commit nil identity)
   [:li.nav_attach] (if commit nil identity)
 
-  ;;[:li.nav_page :> :a] (comp (en/content page) (en/set-attr :href (page-url page)))
+  [:li.nav_page :> :a] (en/content page)
   [:li.nav_commit :> :a] (en/content ["[ " page (if commit (str " | " commit)) " ]"])
   [:li.nav_edit :> :a] (en/set-attr :href (edit-url page))
   [:li.nav_comment :> :a] (en/set-attr :href (comment-url page))
